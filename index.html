@@ -1,142 +1,668 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oficina Motocross</title>
-    <style>
-        :root {
-            --primary: #e63946;
-            --dark: #1d3557;
-            --light: #f1faee;
-            --gray: #ccc;
-        }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; }
-        .hidden { display: none !important; }
-        
-        header { background: var(--dark); color: white; padding: 1rem; text-align: center; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
 
-        .btn-group { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
-        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; background: var(--primary); color: white; font-weight: bold; }
-        button.secondary { background: var(--dark); }
+  .app { min-height: 600px; background: var(--color-background-tertiary); }
 
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--gray); border-radius: 4px; box-sizing: border-box; }
-        
-        .card { border: 1px solid var(--gray); padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    </style>
-</head>
-<body>
+  /* NAV */
+  .nav { background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo { width: 32px; height: 32px; background: #1a1a2e; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; }
+  .nav-logo svg { width: 18px; height: 18px; fill: #fff; }
+  .nav-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.3px; }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-btn { padding: 6px 14px; font-size: 13px; border-radius: var(--border-radius-md); border: 0.5px solid transparent; cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+  .nav-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .nav-right { display: flex; align-items: center; gap: 8px; }
+  .contact-chip { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 4px 10px; border-radius: 20px; border: 0.5px solid var(--color-border-tertiary); }
 
-<header>
-    <h1>Oficina MotoExpert</h1>
-</header>
+  /* PAGES */
+  .page { display: none; padding: 2rem 1.5rem; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
 
-<div class="container">
-    
-    <!-- TELA INICIAL: ESCOLHA DE PERFIL -->
-    <section id="view-home">
-        <h2 style="text-align: center;">Bem-vindo! Como deseja acessar?</h2>
-        <div class="btn-group">
-            <button onclick="showView('view-cadastro-cliente')">Sou Cliente</button>
-            <button class="secondary" onclick="showView('view-login-funcionario')">Sou Funcionário</button>
+  /* HERO */
+  .hero { background: #1a1a2e; border-radius: var(--border-radius-lg); padding: 2.5rem 2rem; margin-bottom: 2rem; color: #fff; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; right: -40px; top: -40px; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); }
+  .hero::after { content: ''; position: absolute; right: 20px; top: 20px; width: 120px; height: 120px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.06); }
+  .hero-tag { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+  .hero h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 0.5rem; }
+  .hero p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 400px; margin-bottom: 1.5rem; }
+  .hero-actions { display: flex; gap: 10px; }
+  .btn-primary { padding: 10px 20px; background: #fff; color: #1a1a2e; border: none; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-outline-w { padding: 10px 20px; background: transparent; color: #fff; border: 0.5px solid rgba(255,255,255,0.3); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; transition: background 0.15s; }
+  .btn-outline-w:hover { background: rgba(255,255,255,0.08); }
+
+  /* INFO CARDS */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+  .info-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .info-card-label { font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .info-card-value { font-size: 14px; color: var(--color-text-primary); font-weight: 500; }
+  .info-card-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  /* SECTION */
+  .section-title { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; letter-spacing: 0.3px; }
+
+  /* SERVICE CARDS */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+  .service-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color 0.15s; position: relative; }
+  .service-card:hover { border-color: var(--color-border-secondary); }
+  .service-card.selected { border: 1.5px solid #1a1a2e; }
+  .service-card.unavailable { opacity: 0.45; cursor: not-allowed; }
+  .service-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .service-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 10px; }
+  .service-footer { display: flex; align-items: center; justify-content: space-between; }
+  .service-price { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .service-slots { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .slots-ok { background: #eaf3de; color: #3b6d11; }
+  .slots-low { background: #faeeda; color: #854f0b; }
+  .slots-out { background: #fcebeb; color: #a32d2d; }
+  .service-vehicle { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; }
+
+  /* BOOKING FORM */
+  .booking-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 2rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+  .form-input { padding: 8px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 13px; font-family: var(--font-sans); }
+  .form-input:focus { outline: none; border-color: #1a1a2e; box-shadow: 0 0 0 2px rgba(26,26,46,0.1); }
+  .form-select { padding: 8px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 13px; font-family: var(--font-sans); }
+  .btn-book { width: 100%; padding: 12px; background: #1a1a2e; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
+  .btn-book:hover { opacity: 0.88; }
+  .btn-book:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* SUCCESS */
+  .success-banner { background: #eaf3de; border: 0.5px solid #c0dd97; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: none; }
+  .success-banner.show { display: block; }
+  .success-banner p { font-size: 13px; color: #3b6d11; font-weight: 500; }
+  .success-banner span { font-weight: 400; }
+
+  /* MAP PLACEHOLDER */
+  .map-block { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 2rem; }
+  .map-header { padding: 1rem 1.25rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .map-header p { font-size: 13px; color: var(--color-text-primary); font-weight: 500; }
+  .map-header span { font-size: 12px; color: var(--color-text-secondary); }
+  .map-visual { height: 140px; background: #e8ece6; display: flex; align-items: center; justify-content: center; position: relative; }
+  .map-pin { width: 32px; height: 32px; background: #1a1a2e; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .map-pin-inner { width: 10px; height: 10px; background: #fff; border-radius: 50%; }
+  .map-label { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 12px; font-size: 11px; color: var(--color-text-secondary); white-space: nowrap; }
+
+  /* === ADMIN === */
+  .login-wrap { max-width: 380px; margin: 3rem auto; }
+  .login-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 2rem; }
+  .login-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .login-error { background: #fcebeb; border: 0.5px solid #f09595; border-radius: var(--border-radius-md); padding: 8px 12px; font-size: 12px; color: #a32d2d; margin-bottom: 12px; display: none; }
+  .login-error.show { display: block; }
+
+  /* ADMIN PANEL */
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .admin-title { font-size: 20px; font-weight: 500; }
+  .admin-user-chip { font-size: 12px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; padding: 4px 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; }
+  .admin-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 0; }
+  .admin-tab { padding: 8px 14px; font-size: 13px; border: none; background: transparent; cursor: pointer; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: all 0.15s; }
+  .admin-tab.active { color: #1a1a2e; border-bottom-color: #1a1a2e; font-weight: 500; }
+  .admin-tab-content { display: none; }
+  .admin-tab-content.active { display: block; }
+
+  /* SERVICE MANAGEMENT */
+  .service-row { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .service-row-info { flex: 1; }
+  .service-row-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .service-row-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .service-row-controls { display: flex; align-items: center; gap: 10px; }
+  .slot-control { display: flex; align-items: center; gap: 6px; }
+  .slot-btn { width: 26px; height: 26px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--color-text-primary); }
+  .slot-count { font-size: 14px; font-weight: 500; min-width: 20px; text-align: center; }
+  .toggle-btn { padding: 5px 12px; font-size: 12px; border-radius: 20px; border: 0.5px solid; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+  .toggle-on { background: #eaf3de; color: #3b6d11; border-color: #c0dd97; }
+  .toggle-off { background: #fcebeb; color: #a32d2d; border-color: #f09595; }
+
+  /* ADD SERVICE */
+  .add-service-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--color-background-primary); border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); cursor: pointer; font-size: 13px; color: var(--color-text-secondary); width: 100%; margin-top: 8px; transition: background 0.15s; }
+  .add-service-btn:hover { background: var(--color-background-secondary); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; display: none; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 1.5rem; width: 400px; max-width: 90vw; border: 0.5px solid var(--color-border-tertiary); }
+  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
+  .btn-cancel { padding: 8px 16px; background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; color: var(--color-text-secondary); }
+  .btn-save { padding: 8px 16px; background: #1a1a2e; color: #fff; border: none; border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; font-weight: 500; }
+
+  /* APPOINTMENTS */
+  .appointment-row { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .apt-info { flex: 1; }
+  .apt-name { font-size: 14px; font-weight: 500; }
+  .apt-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .apt-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .apt-confirmed { background: #eaf3de; color: #3b6d11; }
+  .apt-pending { background: #faeeda; color: #854f0b; }
+
+  /* USERS */
+  .user-row { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; }
+  .user-info { flex: 1; }
+  .user-name { font-size: 14px; font-weight: 500; }
+  .user-role { font-size: 12px; color: var(--color-text-secondary); }
+  .role-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
+  .role-admin { background: #eeedfe; color: #534ab7; }
+  .role-func { background: #e6f1fb; color: #185fa5; }
+  .btn-remove { padding: 5px 10px; font-size: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; color: var(--color-text-secondary); }
+
+  /* SETTINGS */
+  .settings-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 12px; }
+  .settings-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 1rem; color: var(--color-text-primary); }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .settings-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .settings-label { font-size: 13px; color: var(--color-text-primary); }
+  .settings-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  .logout-btn { padding: 8px 16px; background: transparent; border: 0.5px solid #f09595; border-radius: var(--border-radius-md); color: #a32d2d; font-size: 13px; cursor: pointer; }
+</style>
+
+<div class="app">
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+      </div>
+      <span class="nav-name" id="nav-brand-name">Minha Oficina</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showPage('home')">Início</button>
+      <button class="nav-btn" onclick="showPage('agendar')">Agendar</button>
+      <button class="nav-btn" onclick="showPage('admin-gate')">Painel ADM</button>
+    </div>
+    <div class="nav-right">
+      <span class="contact-chip" id="nav-contact">Entre em contato</span>
+    </div>
+  </nav>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-tag">Bem-vindo</div>
+      <h1 id="hero-title">Sua oficina de confiança</h1>
+      <p id="hero-desc">Agende seus serviços automotivos com facilidade, escolha data e horário disponíveis em tempo real.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('agendar')">Agendar agora</button>
+        <button class="btn-outline-w" onclick="document.getElementById('page-home').querySelector('.map-block').scrollIntoView({behavior:'smooth'})">Ver localização</button>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-label">Telefone / WhatsApp</div>
+        <div class="info-card-value" id="info-phone">—</div>
+        <div class="info-card-sub">Atendimento comercial</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Endereço</div>
+        <div class="info-card-value" id="info-address">—</div>
+        <div class="info-card-sub" id="info-city">—</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Horário de funcionamento</div>
+        <div class="info-card-value" id="info-hours">—</div>
+        <div class="info-card-sub" id="info-hours2">—</div>
+      </div>
+    </div>
+
+    <p class="section-title">Nossos serviços</p>
+    <div class="services-grid" id="home-services"></div>
+
+    <div class="map-block">
+      <div class="map-header">
+        <p id="map-name">Nossa localização</p>
+        <span id="map-address-full">Endereço a ser configurado</span>
+      </div>
+      <div class="map-visual">
+        <div class="map-pin"><div class="map-pin-inner"></div></div>
+        <div class="map-label" id="map-label">Endereço não configurado</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENDAR PAGE -->
+  <div class="page" id="page-agendar">
+    <div class="success-banner" id="success-banner">
+      <p>Agendamento confirmado! <span id="success-detail"></span></p>
+    </div>
+
+    <p class="section-title">Selecione um serviço</p>
+    <div class="services-grid" id="book-services"></div>
+
+    <div class="booking-section" id="booking-form-wrap" style="display:none;">
+      <p class="section-title" style="margin-bottom:1rem;">Seus dados e horário</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input class="form-input" id="f-name" placeholder="João da Silva" />
         </div>
-    </section>
-
-    <!-- CADASTRO CLIENTE -->
-    <section id="view-cadastro-cliente" class="hidden">
-        <h2>Cadastro de Cliente</h2>
-        <input type="text" id="c-nome" placeholder="Nome Completo">
-        <input type="tel" id="c-tel" placeholder="Telefone">
-        <input type="text" id="c-end" placeholder="Endereço">
-        <button onclick="cadastrarCliente()">Finalizar Cadastro</button>
-        <button class="secondary" onclick="showView('view-home')">Voltar</button>
-    </section>
-
-    <!-- LOGIN FUNCIONÁRIO -->
-    <section id="view-login-funcionario" class="hidden">
-        <h2>Login Administrativo</h2>
-        <input type="text" id="f-user" placeholder="Usuário">
-        <input type="password" id="f-pass" placeholder="Senha">
-        <button onclick="loginFuncionario()">Entrar</button>
-        <button class="secondary" onclick="showView('view-home')">Voltar</button>
-    </section>
-
-    <!-- MENU PRINCIPAL CLIENTE -->
-    <section id="view-menu-cliente" class="hidden">
-        <h2>Olá, <span id="user-display-name"></span>!</h2>
-        <h3>Agendar Serviço</h3>
-        <select id="servico-select">
-            <option value="Troca de Óleo">Troca de Óleo - R$ 50,00</option>
-            <option value="Revisão Geral">Revisão Geral - R$ 200,00</option>
-            <option value="Troca de Pneu">Troca de Pneu - R$ 80,00</option>
-        </select>
-        <input type="datetime-local" id="agendamento-data">
-        <button onclick="agendar()">Confirmar Agendamento</button>
-        <button class="secondary" onclick="showView('view-home')">Sair</button>
-    </section>
-
-    <!-- DASHBOARD FUNCIONÁRIO -->
-    <section id="view-menu-funcionario" class="hidden">
-        <h2>Painel de Controle</h2>
-        <div class="dashboard-grid">
-            <div>
-                <h3>📦 Estoque de Peças</h3>
-                <div id="lista-estoque">
-                    <div class="card">Pneu Aro 17 | Qtd: 5 <button onclick="alert('Editar...')">✏️</button></div>
-                    <div class="card">Pastilha Freio | Qtd: 12 <button onclick="alert('Editar...')">✏️</button></div>
-                </div>
-            </div>
-            <div>
-                <h3>📅 Agendamentos Hoje</h3>
-                <div id="lista-agendamentos">
-                    <!-- Dinâmico -->
-                </div>
-            </div>
+        <div class="form-group">
+          <label class="form-label">Telefone / WhatsApp</label>
+          <input class="form-input" id="f-phone" placeholder="(69) 99999-0000" />
         </div>
-        <button class="secondary" onclick="showView('view-home')" style="margin-top: 20px;">Sair do Sistema</button>
-    </section>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Placa do veículo</label>
+          <input class="form-input" id="f-plate" placeholder="ABC-1234" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modelo do veículo</label>
+          <input class="form-input" id="f-vehicle" placeholder="Honda CG 160" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input class="form-input" type="date" id="f-date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horário</label>
+          <select class="form-select" id="f-time">
+            <option value="">Selecione</option>
+            <option>08:00</option><option>09:00</option><option>10:00</option>
+            <option>11:00</option><option>13:00</option><option>14:00</option>
+            <option>15:00</option><option>16:00</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-book" id="btn-confirm" onclick="confirmBooking()">Confirmar agendamento</button>
+    </div>
+  </div>
 
+  <!-- ADMIN GATE -->
+  <div class="page" id="page-admin-gate">
+    <div class="login-wrap">
+      <div class="login-card">
+        <p class="login-title">Painel administrativo</p>
+        <p class="login-sub">Entre com suas credenciais para continuar.</p>
+        <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label">Usuário</label>
+          <input class="form-input" id="login-user" placeholder="admin" />
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Senha</label>
+          <input class="form-input" type="password" id="login-pass" placeholder="••••••••" />
+        </div>
+        <button class="btn-book" onclick="doLogin()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="page" id="page-admin">
+    <div class="admin-header">
+      <p class="admin-title">Painel administrativo</p>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="admin-user-chip"><span id="logged-user-label">admin</span></div>
+        <button class="logout-btn" onclick="doLogout()">Sair</button>
+      </div>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('servicos')">Serviços</button>
+      <button class="admin-tab" onclick="switchTab('agendamentos')">Agendamentos</button>
+      <button class="admin-tab" onclick="switchTab('usuarios')">Usuários</button>
+      <button class="admin-tab" onclick="switchTab('configuracoes')">Configurações</button>
+    </div>
+
+    <!-- SERVICOS TAB -->
+    <div class="admin-tab-content active" id="tab-servicos">
+      <div id="admin-service-list"></div>
+      <button class="add-service-btn" onclick="openAddService()">+ Adicionar novo serviço</button>
+    </div>
+
+    <!-- AGENDAMENTOS TAB -->
+    <div class="admin-tab-content" id="tab-agendamentos">
+      <div id="appointments-list"></div>
+    </div>
+
+    <!-- USUARIOS TAB -->
+    <div class="admin-tab-content" id="tab-usuarios">
+      <div id="users-list"></div>
+      <button class="add-service-btn" id="add-user-btn" onclick="openAddUser()">+ Adicionar usuário</button>
+    </div>
+
+    <!-- CONFIGURACOES TAB -->
+    <div class="admin-tab-content" id="tab-configuracoes">
+      <div class="settings-card">
+        <h3>Informações da oficina</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nome da oficina</label><input class="form-input" id="set-name" placeholder="Ex: Oficina do João" /></div>
+          <div class="form-group"><label class="form-label">Telefone / WhatsApp</label><input class="form-input" id="set-phone" placeholder="(69) 99999-0000" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Endereço</label><input class="form-input" id="set-address" placeholder="Rua Exemplo, 123" /></div>
+          <div class="form-group"><label class="form-label">Cidade / Bairro</label><input class="form-input" id="set-city" placeholder="Porto Velho - RO" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Horário (dias úteis)</label><input class="form-input" id="set-hours" placeholder="Seg–Sex: 08h às 18h" /></div>
+          <div class="form-group"><label class="form-label">Horário (fim de semana)</label><input class="form-input" id="set-hours2" placeholder="Sáb: 08h às 13h" /></div>
+        </div>
+        <button class="btn-book" style="width:auto;padding:10px 24px;" onclick="saveSettings()">Salvar informações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SERVICE MODAL -->
+<div class="modal-overlay" id="modal-service">
+  <div class="modal">
+    <h3>Novo serviço</h3>
+    <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Nome do serviço</label><input class="form-input" id="ms-name" placeholder="Ex: Troca de óleo" /></div>
+    <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Descrição breve</label><input class="form-input" id="ms-desc" placeholder="Ex: Inclui filtro e óleo sintético" /></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Preço (R$)</label><input class="form-input" id="ms-price" placeholder="Ex: 80,00" /></div>
+      <div class="form-group"><label class="form-label">Vagas disponíveis</label><input class="form-input" type="number" id="ms-slots" placeholder="Ex: 3" min="0" /></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Tipo de veículo</label>
+      <select class="form-select" id="ms-vehicle"><option value="Todos">Todos</option><option value="Moto">Moto</option><option value="Carro">Carro</option><option value="Caminhonete">Caminhonete</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-service')">Cancelar</button>
+      <button class="btn-save" onclick="addService()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <h3>Novo usuário</h3>
+    <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Nome</label><input class="form-input" id="mu-name" placeholder="Ex: Ana Lima" /></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Login</label><input class="form-input" id="mu-login" placeholder="analima" /></div>
+      <div class="form-group"><label class="form-label">Senha</label><input class="form-input" type="password" id="mu-pass" placeholder="••••••••" /></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Perfil</label>
+      <select class="form-select" id="mu-role"><option value="admin">Administrador (acesso total)</option><option value="func">Funcionário (somente visualizar)</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn-save" onclick="addUser()">Adicionar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Lógica de Navegação Simple Single Page Application (SPA)
-    function showView(viewId) {
-        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-        document.getElementById(viewId).classList.remove('hidden');
-    }
+const state = {
+  currentPage: 'home',
+  loggedUser: null,
+  selectedService: null,
+  settings: { name: '', phone: '', address: '', city: '', hours: '', hours2: '' },
+  services: [],
+  appointments: [],
+  users: [{ name: 'Administrador', login: 'admin', pass: 'admin123', role: 'admin' }]
+};
 
-    function cadastrarCliente() {
-        const nome = document.getElementById('c-nome').value;
-        if(nome) {
-            document.getElementById('user-display-name').innerText = nome;
-            showView('view-menu-cliente');
-        } else { alert("Preencha os campos!"); }
-    }
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
 
-    function loginFuncionario() {
-        const user = document.getElementById('f-user').value;
-        const pass = document.getElementById('f-pass').value;
-        // Simulação simples de login
-        if(user === "admin" && pass === "123") {
-            showView('view-menu-funcionario');
-        } else { alert("Acesso Negado!"); }
-    }
+  if (p === 'admin-gate') {
+    if (state.loggedUser) { document.getElementById('page-admin').classList.add('active'); renderAdmin(); return; }
+    document.getElementById('page-admin-gate').classList.add('active');
+    return;
+  }
+  document.getElementById('page-' + p).classList.add('active');
+  if (p === 'home') { renderHome(); document.querySelectorAll('.nav-btn')[0].classList.add('active'); }
+  if (p === 'agendar') { renderBook(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); }
+}
 
-    function agendar() {
-        const servico = document.getElementById('servico-select').value;
-        const data = document.getElementById('agendamento-data').value;
-        if(data) {
-            alert(`Sucesso! Agendado: ${servico} para ${data}`);
-            // Aqui você enviaria para o banco de dados
-            const lista = document.getElementById('lista-agendamentos');
-            lista.innerHTML += `<div class="card"><strong>${servico}</strong><br>${data}</div>`;
-            showView('view-home');
-        } else { alert("Escolha uma data!"); }
-    }
+function renderHome() {
+  const s = state.settings;
+  document.getElementById('nav-brand-name').textContent = s.name || 'Minha Oficina';
+  document.getElementById('hero-title').textContent = s.name ? s.name : 'Sua oficina de confiança';
+  document.getElementById('info-phone').textContent = s.phone || '—';
+  document.getElementById('info-address').textContent = s.address || '—';
+  document.getElementById('info-city').textContent = s.city || '—';
+  document.getElementById('info-hours').textContent = s.hours || '—';
+  document.getElementById('info-hours2').textContent = s.hours2 || '—';
+  document.getElementById('nav-contact').textContent = s.phone || 'Entre em contato';
+  document.getElementById('map-name').textContent = s.name || 'Nossa localização';
+  document.getElementById('map-address-full').textContent = (s.address && s.city) ? s.address + ', ' + s.city : 'Endereço a ser configurado';
+  document.getElementById('map-label').textContent = s.address || 'Endereço não configurado';
+  renderServiceCards('home-services', false);
+}
+
+function renderBook() {
+  state.selectedService = null;
+  document.getElementById('booking-form-wrap').style.display = 'none';
+  document.getElementById('success-banner').classList.remove('show');
+  renderServiceCards('book-services', true);
+}
+
+function renderServiceCards(containerId, clickable) {
+  const el = document.getElementById(containerId);
+  if (!state.services.length) { el.innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary);padding:1rem 0;">Nenhum serviço cadastrado ainda.</p>'; return; }
+  el.innerHTML = state.services.map((sv, i) => {
+    const slots = sv.slots;
+    const avail = sv.available;
+    const slotClass = !avail ? 'slots-out' : slots === 0 ? 'slots-out' : slots <= 2 ? 'slots-low' : 'slots-ok';
+    const slotLabel = !avail ? 'Indisponível' : slots === 0 ? 'Sem vagas' : slots + (slots === 1 ? ' vaga' : ' vagas');
+    const unavail = !avail || slots === 0;
+    return `<div class="service-card ${unavail ? 'unavailable' : ''}" onclick="${clickable && !unavail ? 'selectService(' + i + ')' : ''}">
+      <div class="service-name">${sv.name}</div>
+      <div class="service-vehicle">${sv.vehicle}</div>
+      <div class="service-desc">${sv.desc}</div>
+      <div class="service-footer">
+        <span class="service-price">R$ ${sv.price}</span>
+        <span class="service-slots ${slotClass}">${slotLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectService(i) {
+  state.selectedService = i;
+  document.querySelectorAll('#book-services .service-card').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('booking-form-wrap').style.display = 'block';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-date').min = today;
+  document.getElementById('f-date').value = today;
+}
+
+function confirmBooking() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const plate = document.getElementById('f-plate').value.trim();
+  const vehicle = document.getElementById('f-vehicle').value.trim();
+  const date = document.getElementById('f-date').value;
+  const time = document.getElementById('f-time').value;
+  if (!name || !phone || !date || !time || state.selectedService === null) { alert('Preencha todos os campos obrigatórios.'); return; }
+  const sv = state.services[state.selectedService];
+  sv.slots = Math.max(0, sv.slots - 1);
+  state.appointments.push({ name, phone, plate, vehicle, date, time, service: sv.name, status: 'confirmado' });
+  document.getElementById('success-detail').textContent = sv.name + ' — ' + date + ' às ' + time + '.';
+  document.getElementById('success-banner').classList.add('show');
+  document.getElementById('booking-form-wrap').style.display = 'none';
+  renderServiceCards('book-services', true);
+  ['f-name','f-phone','f-plate','f-vehicle','f-time'].forEach(id => document.getElementById(id).value = '');
+  state.selectedService = null;
+}
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const found = state.users.find(usr => usr.login === u && usr.pass === p);
+  if (found) {
+    state.loggedUser = found;
+    document.getElementById('login-error').classList.remove('show');
+    document.getElementById('page-admin-gate').classList.remove('active');
+    document.getElementById('page-admin').classList.add('active');
+    document.getElementById('logged-user-label').textContent = found.name + ' (' + (found.role === 'admin' ? 'Admin' : 'Funcionário') + ')';
+    renderAdmin();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+  }
+}
+
+function doLogout() {
+  state.loggedUser = null;
+  document.getElementById('page-admin').classList.remove('active');
+  document.getElementById('page-admin-gate').classList.add('active');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'servicos') renderAdminServices();
+  if (name === 'agendamentos') renderAppointments();
+  if (name === 'usuarios') renderUsers();
+  if (name === 'configuracoes') loadSettings();
+}
+
+function renderAdmin() {
+  renderAdminServices();
+  loadSettings();
+}
+
+function renderAdminServices() {
+  const el = document.getElementById('admin-service-list');
+  if (!state.services.length) { el.innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary);padding:1rem 0;">Nenhum serviço ainda. Adicione o primeiro!</p>'; return; }
+  const isAdmin = state.loggedUser && state.loggedUser.role === 'admin';
+  el.innerHTML = state.services.map((sv, i) => `
+    <div class="service-row">
+      <div class="service-row-info">
+        <div class="service-row-name">${sv.name}</div>
+        <div class="service-row-meta">${sv.vehicle} · R$ ${sv.price} · ${sv.desc}</div>
+      </div>
+      <div class="service-row-controls">
+        <div class="slot-control">
+          <button class="slot-btn" onclick="changeSlots(${i}, -1)" ${!isAdmin ? 'disabled' : ''}>−</button>
+          <span class="slot-count">${sv.slots}</span>
+          <button class="slot-btn" onclick="changeSlots(${i}, 1)" ${!isAdmin ? 'disabled' : ''}>+</button>
+        </div>
+        <button class="toggle-btn ${sv.available ? 'toggle-on' : 'toggle-off'}" onclick="toggleService(${i})" ${!isAdmin ? 'disabled' : ''}>${sv.available ? 'Disponível' : 'Indisponível'}</button>
+        ${isAdmin ? `<button class="btn-remove" onclick="removeService(${i})">Remover</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function changeSlots(i, delta) {
+  state.services[i].slots = Math.max(0, state.services[i].slots + delta);
+  renderAdminServices();
+  renderHome();
+}
+
+function toggleService(i) {
+  state.services[i].available = !state.services[i].available;
+  renderAdminServices();
+}
+
+function removeService(i) {
+  if (!confirm('Remover este serviço?')) return;
+  state.services.splice(i, 1);
+  renderAdminServices();
+}
+
+function openAddService() {
+  if (!state.loggedUser || state.loggedUser.role !== 'admin') { alert('Apenas administradores podem adicionar serviços.'); return; }
+  document.getElementById('modal-service').classList.add('show');
+}
+
+function addService() {
+  const name = document.getElementById('ms-name').value.trim();
+  const desc = document.getElementById('ms-desc').value.trim();
+  const price = document.getElementById('ms-price').value.trim();
+  const slots = parseInt(document.getElementById('ms-slots').value) || 0;
+  const vehicle = document.getElementById('ms-vehicle').value;
+  if (!name) { alert('Informe o nome do serviço.'); return; }
+  state.services.push({ name, desc, price: price || '—', slots, vehicle, available: true });
+  closeModal('modal-service');
+  document.getElementById('ms-name').value = ''; document.getElementById('ms-desc').value = '';
+  document.getElementById('ms-price').value = ''; document.getElementById('ms-slots').value = '';
+  renderAdminServices();
+}
+
+function renderAppointments() {
+  const el = document.getElementById('appointments-list');
+  if (!state.appointments.length) { el.innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary);padding:1rem 0;">Nenhum agendamento ainda.</p>'; return; }
+  el.innerHTML = state.appointments.map(a => `
+    <div class="appointment-row">
+      <div class="apt-info">
+        <div class="apt-name">${a.name}</div>
+        <div class="apt-meta">${a.service} · ${a.date} às ${a.time} · ${a.vehicle || '—'} ${a.plate ? '(' + a.plate + ')' : ''} · ${a.phone}</div>
+      </div>
+      <span class="apt-badge apt-confirmed">Confirmado</span>
+    </div>`).join('');
+}
+
+function renderUsers() {
+  const isAdmin = state.loggedUser && state.loggedUser.role === 'admin';
+  document.getElementById('add-user-btn').style.display = isAdmin ? 'flex' : 'none';
+  const el = document.getElementById('users-list');
+  el.innerHTML = state.users.map((u, i) => `
+    <div class="user-row">
+      <div class="user-avatar">${u.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-role">@${u.login}</div>
+      </div>
+      <span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-func'}">${u.role === 'admin' ? 'Administrador' : 'Funcionário'}</span>
+      ${isAdmin && i !== 0 ? `<button class="btn-remove" onclick="removeUser(${i})">Remover</button>` : ''}
+    </div>`).join('');
+}
+
+function openAddUser() {
+  if (!state.loggedUser || state.loggedUser.role !== 'admin') return;
+  document.getElementById('modal-user').classList.add('show');
+}
+
+function addUser() {
+  const name = document.getElementById('mu-name').value.trim();
+  const login = document.getElementById('mu-login').value.trim();
+  const pass = document.getElementById('mu-pass').value;
+  const role = document.getElementById('mu-role').value;
+  if (!name || !login || !pass) { alert('Preencha todos os campos.'); return; }
+  if (state.users.find(u => u.login === login)) { alert('Login já existe.'); return; }
+  state.users.push({ name, login, pass, role });
+  closeModal('modal-user');
+  document.getElementById('mu-name').value = ''; document.getElementById('mu-login').value = '';
+  document.getElementById('mu-pass').value = '';
+  renderUsers();
+}
+
+function removeUser(i) {
+  if (!confirm('Remover este usuário?')) return;
+  state.users.splice(i, 1);
+  renderUsers();
+}
+
+function loadSettings() {
+  const s = state.settings;
+  document.getElementById('set-name').value = s.name;
+  document.getElementById('set-phone').value = s.phone;
+  document.getElementById('set-address').value = s.address;
+  document.getElementById('set-city').value = s.city;
+  document.getElementById('set-hours').value = s.hours;
+  document.getElementById('set-hours2').value = s.hours2;
+}
+
+function saveSettings() {
+  state.settings.name = document.getElementById('set-name').value.trim();
+  state.settings.phone = document.getElementById('set-phone').value.trim();
+  state.settings.address = document.getElementById('set-address').value.trim();
+  state.settings.city = document.getElementById('set-city').value.trim();
+  state.settings.hours = document.getElementById('set-hours').value.trim();
+  state.settings.hours2 = document.getElementById('set-hours2').value.trim();
+  renderHome();
+  alert('Informações salvas com sucesso!');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+renderHome();
 </script>
-
-</body>
-</html>
