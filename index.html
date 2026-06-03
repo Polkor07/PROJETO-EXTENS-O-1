@@ -149,6 +149,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 .btn-save { padding: 8px 16px; background: #1a1a2e; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; font-family: inherit; }
 .btn-save-inline { width: auto; padding: 10px 24px; }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -397,8 +398,15 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 </button>
 
 <script>
+// 1. Inicializa o Supabase com as suas credenciais
+const SUPABASE_URL = 'kwtflhlcoxvmvtspaozn';
+const SUPABASE_KEY = 'sb_publishable_PzzU8O3tpoAOaPI2WfJo2Q_JdWOpwUN'; // Use a que está na linha "anon"
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 2. Mantém os horários padrão
 const ALL_TIMES = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
+// 3. O estado inicial agora começa "vazio" porque os dados virão do banco
 const state = {
   loggedUser: null,
   selectedService: null,
@@ -408,7 +416,7 @@ const state = {
   appointments: [],
   users: [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }]
 };
-
+  
 function maskPhone(el) {
   let v = el.value.replace(/\D/g,'');
   if (v.length > 11) v = v.slice(0,11);
@@ -509,24 +517,41 @@ function updateAvailableTimes() {
   sel.innerHTML='<option value="">Selecione</option>'+available.map(t=>`<option value="${t}">${t}</option>`).join('');
 }
 
-function confirmBooking() {
+async function confirmBooking() {
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
   const plate = document.getElementById('f-plate').value.trim();
   const vehicle = document.getElementById('f-vehicle').value.trim();
   const date = document.getElementById('f-date').value;
   const time = document.getElementById('f-time').value;
+  
   if (!name||!phone||!date||!time||state.selectedService===null) { alert('Preencha todos os campos obrigatórios.'); return; }
+  
   const si = state.selectedService;
   const sv = state.services[si];
-  sv.slots = Math.max(0,sv.slots-1);
-  state.appointments.push({name,phone,plate,vehicle,date,time,service:sv.name,serviceIdx:si});
+  const novosSlots = Math.max(0, sv.slots - 1);
+
+  // 1. Atualizar vagas do serviço no Supabase
+  await _supabase.from('services').update({ slots: novosSlots }).eq('id', sv.id);
+
+  // 2. Salvar agendamento no Supabase
+  const { data, error } = await _supabase.from('appointments').insert([{
+    name, phone, plate, vehicle, date, time, service: sv.name, service_id: sv.id
+  }]);
+
+  if (error) {
+    alert('Erro ao agendar: ' + error.message);
+    return;
+  }
+
+  // Atualizar tela recarregando os dados atualizados
+  await initApp();
+
   document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
   document.getElementById('success-banner').classList.add('show');
   document.getElementById('booking-form-wrap').style.display = 'none';
   ['f-name','f-phone','f-plate','f-vehicle'].forEach(id=>document.getElementById(id).value='');
   state.selectedService = null;
-  renderServiceCards();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -595,17 +620,26 @@ function removeService(i){if(!confirm('Remover este serviço?'))return;state.ser
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
-function addService() {
+async function addService() {
   const name = document.getElementById('ms-name').value.trim();
   const desc = document.getElementById('ms-desc').value.trim();
   const price = document.getElementById('ms-price').value.trim();
   const slots = parseInt(document.getElementById('ms-slots').value)||0;
   const vehicle = document.getElementById('ms-vehicle').value;
+  
   if (!name){alert('Informe o nome do serviço.');return;}
-  state.services.push({name,desc,price:price||'—',slots,vehicle,available:true});
+
+  const { error } = await _supabase.from('services').insert([{
+    name, desc, price: price || '—', slots, vehicle, available: true
+  }]);
+
+  if (error) return alert(error.message);
+
   closeModal('modal-service');
   ['ms-name','ms-desc','ms-price','ms-slots'].forEach(id=>document.getElementById(id).value='');
-  renderAdminServices();renderServiceCards();
+  
+  await initApp();
+  renderAdminServices();
 }
 
 function renderAppointments() {
@@ -695,15 +729,22 @@ function loadSettings() {
   });
 }
 
-function saveSettings() {
-  state.settings.name=document.getElementById('set-name').value.trim();
-  state.settings.phone=document.getElementById('set-phone').value.trim();
-  state.settings.rua=document.getElementById('set-rua').value.trim();
-  state.settings.numero=document.getElementById('set-numero').value.trim();
-  state.settings.bairro=document.getElementById('set-bairro').value.trim();
-  state.settings.desc=document.getElementById('set-desc').value.trim();
-  renderHome();
-  alert('Informações salvas!');
+async function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  const phone = document.getElementById('set-phone').value.trim();
+  const rua = document.getElementById('set-rua').value.trim();
+  const numero = document.getElementById('set-numero').value.trim();
+  const bairro = document.getElementById('set-bairro').value.trim();
+  const desc = document.getElementById('set-desc').value.trim();
+
+  const { error } = await _supabase.from('settings').update({
+    name, phone, rua, numero, bairro, desc
+  }).eq('id', 1);
+
+  if (error) return alert(error.message);
+
+  await initApp();
+  alert('Informações salvas no banco de dados!');
 }
 
 function saveHours() {
@@ -717,7 +758,45 @@ function saveHours() {
   alert('Horários salvos!');
 }
 
-renderHome();
+async function initApp() {
+  try {
+    // 1. Buscar Configurações
+    const { data: settleData } = await _supabase.from('settings').select('*').single();
+    if (settleData) state.settings = settleData;
+
+    // 2. Buscar Horários
+    const { data: hoursData } = await _supabase.from('hours').select('*').single();
+    if (hoursData) {
+      state.hours = {
+        open: hoursData.open_time,
+        close: hoursData.close_time,
+        days: hoursData.days || [],
+        complement: hoursData.complement
+      };
+    }
+
+    // 3. Buscar Serviços
+    const { data: servicesData } = await _supabase.from('services').select('*').order('name');
+    if (servicesData) state.services = servicesData;
+
+    // 4. Buscar Agendamentos
+    const { data: aptData } = await _supabase.from('appointments').select('*');
+    if (aptData) {
+      // Ajustar os nomes das colunas de snake_case do banco para o seu state
+      state.appointments = aptData.map(a => ({
+        ...a,
+        serviceIdx: state.services.findIndex(s => s.id === a.service_id)
+      }));
+    }
+
+    renderHome();
+  } catch (error) {
+    console.error("Erro ao carregar dados do Supabase:", error);
+  }
+}
+
+// Inicia o aplicativo buscando os dados online
+initApp();
 </script>
 </body>
 </html>
