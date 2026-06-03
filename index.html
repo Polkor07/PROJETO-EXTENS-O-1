@@ -430,7 +430,7 @@ function fmtDate(iso) {
   const [y,m,d] = iso.split('-');
   return d+'/'+m+'/'+y;
 }
-
+initApp();
 async function showPage(p) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   
