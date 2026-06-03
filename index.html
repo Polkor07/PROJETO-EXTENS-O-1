@@ -399,7 +399,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 
 <script>
 // 1. Inicializa o Supabase com as suas credenciais
-const SUPABASE_URL = 'kwtflhlcoxvmvtspaozn';
+const SUPABASE_URL = 'https://kwtflhlcoxvmvtspaozn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_PzzU8O3tpoAOaPI2WfJo2Q_JdWOpwUN'; // Use a que está na linha "anon"
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -430,7 +430,6 @@ function fmtDate(iso) {
   const [y,m,d] = iso.split('-');
   return d+'/'+m+'/'+y;
 }
-initApp();
 async function showPage(p) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   
