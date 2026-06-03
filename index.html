@@ -431,12 +431,19 @@ function fmtDate(iso) {
   return d+'/'+m+'/'+y;
 }
 
-function showPage(p) {
+async function showPage(p) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  
   if (p === 'admin-gate') {
-    if (state.loggedUser) { document.getElementById('page-admin').classList.add('active'); renderAdmin(); return; }
-    document.getElementById('page-admin-gate').classList.add('active'); return;
+    if (state.loggedUser) { 
+      document.getElementById('page-admin').classList.add('active'); 
+      renderAdmin(); 
+      return; 
+    }
+    document.getElementById('page-admin-gate').classList.add('active'); 
+    return;
   }
+  
   document.getElementById('page-'+p).classList.add('active');
   if (p === 'home') renderHome();
 }
@@ -747,15 +754,30 @@ async function saveSettings() {
   alert('Informações salvas no banco de dados!');
 }
 
-function saveHours() {
-  state.hours.open=document.getElementById('set-open').value;
-  state.hours.close=document.getElementById('set-close').value;
-  state.hours.complement=document.getElementById('set-complement').value.trim();
-  state.hours.days=['d0','d1','d2','d3','d4','d5','d6']
-    .filter(id=>document.getElementById(id).checked)
-    .map(id=>document.getElementById(id).value);
-  renderHome();
-  alert('Horários salvos!');
+async function saveHours() {
+  const open_time = document.getElementById('set-open').value;
+  const close_time = document.getElementById('set-close').value;
+  const complement = document.getElementById('set-complement').value.trim();
+  const days = ['d0','d1','d2','d3','d4','d5','d6']
+    .filter(id => document.getElementById(id).checked)
+    .map(id => document.getElementById(id).value);
+
+  // Salva os horários na linha ID 1 do Supabase
+  const { error } = await _supabase.from('hours').update({
+    open_time,
+    close_time,
+    complement,
+    days
+  }).eq('id', 1);
+
+  if (error) {
+    alert('Erro ao salvar horários: ' + error.message);
+    return;
+  }
+
+  // Recarrega as informações atualizadas do banco de dados
+  await initApp();
+  alert('Horários salvos no banco de dados!');
 }
 
 async function initApp() {
