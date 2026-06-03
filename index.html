@@ -407,7 +407,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ALL_TIMES = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
 // 3. O estado inicial agora começa "vazio" porque os dados virão do banco
-const state = {
+var state = {
   loggedUser: null,
   selectedService: null,
   settings: { name:'', phone:'', rua:'', numero:'', bairro:'', desc:'' },
