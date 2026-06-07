@@ -24,8 +24,12 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 .hero-tag { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #888; margin-bottom: 0.5rem; }
 .hero-title { font-size: 28px; font-weight: 500; letter-spacing: -0.5px; color: #1a1a1a; margin-bottom: 0.5rem; }
 .hero-desc { font-size: 14px; color: #666; line-height: 1.6; max-width: 480px; margin: 0 auto 1rem; }
-.hours-badge { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 8px 16px; font-size: 13px; color: #1a1a1a; }
-.hours-badge-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px; }
+.hours-badge { display: inline-flex; align-items: center; gap: 12px; background: #fff; border: 0.5px solid #e0e0d8; border-radius: 14px; padding: 12px 20px; font-size: 13px; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-top: 4px; }
+.hours-badge-icon { width: 32px; height: 32px; background: #1a1a2e; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hours-badge-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+.hours-badge-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; font-weight: 500; }
+.hours-badge-text { font-size: 13px; font-weight: 500; color: #1a1a1a; line-height: 1.4; }
+.hours-badge-complement { font-size: 11px; color: #888; margin-top: 2px; }
 
 /* CONTACT ROW */
 .contact-row { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
@@ -169,9 +173,15 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
     <div class="hero-title" id="hero-title">Sua oficina de confiança</div>
     <div class="hero-desc" id="hero-desc">Agende seus serviços automotivos com facilidade, escolha data e horário em tempo real.</div>
     <div class="hours-badge" id="hours-badge" style="display:none;">
+      <div class="hours-badge-icon">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
+        </svg>
+      </div>
       <div>
         <div class="hours-badge-label">Funcionamento</div>
-        <div id="hours-display" style="font-size:13px;font-weight:500;"></div>
+        <div class="hours-badge-text" id="hours-display"></div>
+        <div class="hours-badge-complement" id="hours-complement" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -456,11 +466,17 @@ function renderHome() {
 
   const hasHours = h.open && h.close && h.days.length;
   if (hasHours) {
-    const openFmt = h.open.replace(':','h');
-    const closeFmt = h.close.replace(':','h');
-    let txt = h.days.join(', ') + ': ' + openFmt + ' às ' + closeFmt;
-    if (h.complement) txt += ' · ' + h.complement;
+    const openFmt = h.open.slice(0,5).replace(':','h');
+    const closeFmt = h.close.slice(0,5).replace(':','h');
+    const txt = h.days.join(', ') + ': ' + openFmt + ' às ' + closeFmt;
     document.getElementById('hours-display').textContent = txt;
+    const compEl = document.getElementById('hours-complement');
+    if (h.complement) {
+      compEl.textContent = h.complement;
+      compEl.style.display = 'block';
+    } else {
+      compEl.style.display = 'none';
+    }
     document.getElementById('hours-badge').style.display = 'inline-flex';
   } else { document.getElementById('hours-badge').style.display = 'none'; }
 
@@ -496,14 +512,23 @@ function renderServiceCards() {
   }).join('');
 }
 
+function getTodayLocal() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function selectService(i) {
   state.selectedService = i;
   document.querySelectorAll('#home-services .service-card').forEach((el,idx)=>el.classList.toggle('selected',idx===i));
   document.getElementById('booking-form-wrap').style.display = 'block';
   document.getElementById('success-banner').classList.remove('show');
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('f-date').min = today;
-  document.getElementById('f-date').value = today;
+  const today = getTodayLocal();
+  const dateInput = document.getElementById('f-date');
+  dateInput.min = today;
+  dateInput.value = today;
   updateAvailableTimes();
   document.getElementById('booking-form-wrap').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -512,15 +537,48 @@ function getBookedTimes(date, si) {
   return state.appointments.filter(a=>a.date===date&&a.serviceIdx===si).map(a=>a.time);
 }
 
+function getTimesWithinHours() {
+  const h = state.hours;
+  if (!h.open || !h.close) return ALL_TIMES;
+  const toMin = t => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+  const openMin = toMin(h.open);
+  const closeMin = toMin(h.close);
+  return ALL_TIMES.filter(t => {
+    const m = toMin(t);
+    return m >= openMin && m < closeMin;
+  });
+}
+
 function updateAvailableTimes() {
   const date = document.getElementById('f-date').value;
   const si = state.selectedService;
   const sel = document.getElementById('f-time');
-  if (!date||si===null) { sel.innerHTML='<option value="">Selecione uma data</option>'; return; }
+  if (!date || si === null) { sel.innerHTML = '<option value="">Selecione uma data</option>'; return; }
+
+  // Bloquear se data é anterior a hoje
+  const today = getTodayLocal();
+  if (date < today) {
+    sel.innerHTML = '<option value="">Data inválida</option>';
+    return;
+  }
+
   const booked = getBookedTimes(date, si);
-  const available = ALL_TIMES.filter(t=>!booked.includes(t));
-  if (!available.length) { sel.innerHTML='<option value="">Nenhum horário disponível nesta data</option>'; return; }
-  sel.innerHTML='<option value="">Selecione</option>'+available.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const withinHours = getTimesWithinHours();
+
+  // Se for hoje, filtrar horários que já passaram (com 30min de margem)
+  let available = withinHours.filter(t => !booked.includes(t));
+  if (date === today) {
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes() + 30; // 30 min de margem
+    const toMin = t => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+    available = available.filter(t => toMin(t) > nowMin);
+  }
+
+  if (!available.length) {
+    sel.innerHTML = '<option value="">Nenhum horário disponível nesta data</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">Selecione</option>' + available.map(t => `<option value="${t}">${t}</option>`).join('');
 }
 
 async function confirmBooking() {
@@ -530,10 +588,25 @@ async function confirmBooking() {
   const vehicle = document.getElementById('f-vehicle').value.trim();
   const date = document.getElementById('f-date').value;
   const time = document.getElementById('f-time').value;
-  
+
   if (!name||!phone||!date||!time||state.selectedService===null) { alert('Preencha todos os campos obrigatórios.'); return; }
-  
+
+  // Validação: data não pode ser anterior a hoje
+  const today = getTodayLocal();
+  if (date < today) { alert('Não é possível agendar para uma data que já passou.'); return; }
+
+  // Validação: horário já passou hoje (com 30 min de margem)
+  if (date === today) {
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes() + 30;
+    const [hh, mm] = time.split(':').map(Number);
+    if ((hh * 60 + mm) <= nowMin) { alert('Este horário já passou. Selecione um horário futuro.'); return; }
+  }
+
+  // Validação: horário já ocupado para este serviço nesta data
   const si = state.selectedService;
+  if (getBookedTimes(date, si).includes(time)) { alert('Este horário já está ocupado. Escolha outro.'); return; }
+
   const sv = state.services[si];
   const novosSlots = Math.max(0, sv.slots - 1);
 
@@ -545,12 +618,8 @@ async function confirmBooking() {
     name, phone, plate, vehicle, date, time, service: sv.name, service_id: sv.id
   }]);
 
-  if (error) {
-    alert('Erro ao agendar: ' + error.message);
-    return;
-  }
+  if (error) { alert('Erro ao agendar: ' + error.message); return; }
 
-  // Atualizar tela recarregando os dados atualizados
   await initApp();
 
   document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
@@ -619,9 +688,35 @@ function renderAdminServices() {
     </div>`).join('');
 }
 
-function changeSlots(i,delta){state.services[i].slots=Math.max(0,state.services[i].slots+delta);renderAdminServices();renderServiceCards();}
-function toggleService(i){state.services[i].available=!state.services[i].available;renderAdminServices();renderServiceCards();}
-function removeService(i){if(!confirm('Remover este serviço?'))return;state.services.splice(i,1);renderAdminServices();renderServiceCards();}
+async function changeSlots(i, delta) {
+  const sv = state.services[i];
+  const novosSlots = Math.max(0, sv.slots + delta);
+  const { error } = await _supabase.from('services').update({ slots: novosSlots }).eq('id', sv.id);
+  if (error) return alert('Erro ao atualizar vagas: ' + error.message);
+  state.services[i].slots = novosSlots;
+  renderAdminServices();
+  renderServiceCards();
+}
+
+async function toggleService(i) {
+  const sv = state.services[i];
+  const novoEstado = !sv.available;
+  const { error } = await _supabase.from('services').update({ available: novoEstado }).eq('id', sv.id);
+  if (error) return alert('Erro ao atualizar disponibilidade: ' + error.message);
+  state.services[i].available = novoEstado;
+  renderAdminServices();
+  renderServiceCards();
+}
+
+async function removeService(i) {
+  if (!confirm('Remover este serviço permanentemente?')) return;
+  const sv = state.services[i];
+  const { error } = await _supabase.from('services').delete().eq('id', sv.id);
+  if (error) return alert('Erro ao remover serviço: ' + error.message);
+  state.services.splice(i, 1);
+  renderAdminServices();
+  renderServiceCards();
+}
 
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
