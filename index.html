@@ -215,7 +215,32 @@ tr:last-child td { border-bottom: none; }
     <div class="admin-tabs">
       <button class="tab-btn active" onclick="selectTab('agenda')">Agenda</button>
       <button class="tab-btn" onclick="selectTab('servicos')">Serviços</button>
-      <button class="tab-btn" onclick="selectTab('config')">Configurações Oficina</button>
+      <button class="tab-btn" onclick="selectTab('funcionarios')">Funcionários</button> <button class="tab-btn" onclick="selectTab('config')">Configurações Oficina</button>
+    </div>
+
+    ...
+
+    ...
+
+    <div id="tab-funcionarios" class="tab-content">
+      <div class="sec-title">
+        <span>Equipe e Logins</span>
+        <button class="btn btn-primary" style="height:34px; font-size:0.9rem;" onclick="openModal('modal-funcionario')">+ Novo Funcionário</button>
+      </div>
+      <div class="table-responsive">
+        <table id="table-users">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Login</th>
+              <th>Senha</th>
+              <th>Cargo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div id="tab-agenda" class="tab-content active">
