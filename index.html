@@ -739,8 +739,16 @@ async function addService() {
   closeModal('modal-service');
   ['ms-name','ms-desc','ms-price','ms-slots'].forEach(id=>document.getElementById(id).value='');
   
+  // 1. Recarrega os dados atualizados do banco de dados do Supabase
   await initApp();
+  
+  // 2. CORREÇÃO: Atualiza a lista visual do painel do Administrador/Funcionário
   renderAdminServices();
+  
+  // 3. CORREÇÃO: Atualiza também os cards da página inicial pública do cliente
+  renderServiceCards();
+  
+  alert('Serviço adicionado com sucesso!');
 }
 
 function renderAppointments() {
