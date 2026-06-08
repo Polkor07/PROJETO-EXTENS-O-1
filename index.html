@@ -449,6 +449,7 @@ function fmtDate(dStr) {
 
 // 3. NAVEGAÇÃO ENTRE PÁGINAS
 async function showPage(p) {
+  // Esconde todas as páginas
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   
   if (p === 'admin-gate') {
@@ -457,12 +458,14 @@ async function showPage(p) {
       renderAdmin(); 
       return; 
     }
-    document.getElementById('page-page-admin-gate' || 'page-admin-gate').classList.add('active'); 
+    // Garante que vai abrir o ID exato do seu HTML
+    const gate = document.getElementById('page-admin-gate');
+    if (gate) gate.classList.add('active');
     return;
   }
   
   const targetPage = document.getElementById('page-'+p);
-  if(targetPage) targetPage.classList.add('active');
+  if (targetPage) targetPage.classList.add('active');
   
   if (p === 'home') {
     renderHome();
