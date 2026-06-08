@@ -106,6 +106,22 @@ tr:last-child td { border-bottom: none; }
 @media(max-width: 640px) { .grid-config { grid-template-columns: 1fr; } }
 .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 8px; }
 .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+.btn-login-adm {
+    position: absolute;
+    top: 8px;
+    right: 1.5rem;
+    z-index: 100;
+    height: 38px !important;
+    font-size: 0.9rem !important;
+  }
+
+  @media (max-width: 640px) {
+    .btn-login-adm {
+      position: static;
+      margin-top: 1rem;
+      width: 100%;
+    }
+  }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -132,7 +148,7 @@ tr:last-child td { border-bottom: none; }
         <div class="info-item" id="info-hours">Funcionamento: --</div>
       </div>
       <div style="margin-top: 1.5rem;">
-        <button class="btn btn-secondary" onclick="showPage('admin-gate')">Sou Funcionário</button>
+        <button class="btn btn-secondary btn-login-adm" onclick="showPage('admin-gate')">Login ADM</button>
       </div>
     </div>
 
