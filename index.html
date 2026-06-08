@@ -15,397 +15,357 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 .nav-logo svg { width: 18px; height: 18px; fill: #fff; }
 .nav-name { font-size: 15px; font-weight: 500; color: #1a1a1a; letter-spacing: -0.3px; }
 
-/* PAGES */
-.page { display: none; padding: 2rem 1.5rem 5rem; max-width: 960px; margin: 0 auto; }
+/* CONTAINER */
+.container { max-width: 1040px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* HOME HERO */
+.hero { text-align: center; margin-bottom: 3rem; padding: 1rem 0; }
+.hero h1 { font-size: 2.5rem; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+.hero p { color: #666; font-size: 1.1rem; max-width: 600px; margin: 0 auto 1.5rem auto; line-height: 1.5; }
+.info-row { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; color: #444; font-size: 0.95rem; }
+.info-item { display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 12px; border-radius: 20px; border: 0.5px solid #e0e0d8; }
+
+/* SECTION TITLE */
+.sec-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+
+/* GRID SERVIÇOS */
+.grid-serv { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+.card-serv { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+.card-serv:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.04); }
+.card-serv-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.3px; }
+.card-serv-desc { color: #666; font-size: 0.95rem; line-height: 1.4; margin-bottom: 1.5rem; flex-grow: 1; }
+.card-serv-price { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; }
+.card-serv-slots { font-size: 0.85rem; color: #ff3b30; font-weight: 500; margin-top: 2px; }
+
+/* BADGES */
+.badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+.badge-car { background: #e3effb; color: #007aff; }
+.badge-moto { background: #e5f9f0; color: #34c759; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 1.25rem; height: 40px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+.btn-primary { background: #1a1a2e; color: #fff; }
+.btn-primary:hover { background: #2e2e4a; }
+.btn-secondary { background: #fff; color: #1a1a1a; border: 0.5px solid #e0e0d8; }
+.btn-secondary:hover { background: #f5f5f3; }
+.btn-danger { background: #ff3b30; color: #fff; }
+.btn-danger:hover { background: #d32f2f; }
+
+/* FORM WRAPPER (BOOKING) */
+.form-wrap { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 16px; padding: 2rem; max-width: 540px; margin: 0 auto 3rem auto; }
+.form-group { margin-bottom: 1.25rem; }
+.form-group label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 6px; color: #444; }
+.form-control { width: 100%; height: 42px; border-radius: 8px; border: 0.5px solid #c7c7cc; padding: 0 10px; font-size: 0.95rem; background: #fff; outline: none; }
+.form-control:focus { border-color: #1a1a2e; box-shadow: 0 0 0 3px rgba(26,26,46,0.1); }
+textarea.form-control { height: auto; padding: 10px; }
+
+/* SUCCESS BANNER */
+.banner-success { background: #e5f9f0; border: 0.5px solid #34c759; border-radius: 12px; padding: 1.5rem; text-align: center; max-width: 540px; margin: 0 auto 2rem auto; display: none; }
+.banner-success.show { display: block; }
+.banner-success h3 { color: #248a3d; font-size: 1.2rem; margin-bottom: 6px; }
+.banner-success p { color: #34495e; font-size: 0.95rem; }
+
+/* PAGES BLOCK */
+.page { display: none; }
 .page.active { display: block; }
 
-/* HERO */
-.hero-top { text-align: center; margin-bottom: 2rem; }
-.hero-tag { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #888; margin-bottom: 0.5rem; }
-.hero-title { font-size: 28px; font-weight: 500; letter-spacing: -0.5px; color: #1a1a1a; margin-bottom: 0.5rem; }
-.hero-desc { font-size: 14px; color: #666; line-height: 1.6; max-width: 480px; margin: 0 auto 1rem; }
-.hours-badge { display: inline-flex; align-items: center; gap: 12px; background: #fff; border: 0.5px solid #e0e0d8; border-radius: 14px; padding: 12px 20px; font-size: 13px; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-top: 4px; }
-.hours-badge-icon { width: 32px; height: 32px; background: #1a1a2e; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.hours-badge-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
-.hours-badge-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; font-weight: 500; }
-.hours-badge-text { font-size: 13px; font-weight: 500; color: #1a1a1a; line-height: 1.4; }
-.hours-badge-complement { font-size: 11px; color: #888; margin-top: 2px; }
+/* ADMIN GATE */
+.gate-wrap { max-width: 360px; margin: 6rem auto; background: #fff; border: 0.5px solid #e0e0d8; border-radius: 16px; padding: 2rem; }
 
-/* CONTACT ROW */
-.contact-row { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
-.contact-item { display: flex; flex-direction: column; }
-.contact-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px; }
-.contact-value { font-size: 14px; font-weight: 500; color: #1a1a1a; }
-.contact-sub { font-size: 12px; color: #888; }
-.contact-divider { width: 0.5px; height: 36px; background: #e0e0d8; }
+/* ADMIN LAYOUT */
+.admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid #e0e0d8; padding-bottom: 1rem; margin-bottom: 2rem; }
+.admin-tabs { display: flex; gap: 8px; border-bottom: 0.5px solid #e0e0d8; margin-bottom: 1.5rem; }
+.tab-btn { padding: 10px 16px; border: none; background: none; font-size: 0.95rem; font-weight: 500; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab-btn.active { color: #1a1a2e; border-bottom-color: #1a1a2e; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-/* SECTION */
-.section-title { font-size: 14px; font-weight: 500; color: #888; margin-bottom: 1rem; letter-spacing: 0.3px; }
+/* TABLES */
+.table-responsive { width: 100%; overflow-x: auto; background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+th, td { padding: 12px 16px; border-bottom: 0.5px solid #e0e0d8; vertical-align: middle; }
+th { background: #fafafa; font-weight: 600; color: #444; }
+tr:last-child td { border-bottom: none; }
 
-/* SERVICE CARDS */
-.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem; }
-.service-card { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: border-color 0.15s; }
-.service-card:hover:not(.unavailable) { border-color: #aaa; }
-.service-card.selected { border: 1.5px solid #1a1a2e; }
-.service-card.unavailable { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
-.service-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-.service-vehicle { font-size: 11px; color: #888; margin-bottom: 6px; }
-.service-desc { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 10px; }
-.service-footer { display: flex; align-items: center; justify-content: space-between; }
-.service-price { font-size: 13px; font-weight: 500; }
-.service-slots { font-size: 11px; padding: 3px 8px; border-radius: 20px; }
-.slots-ok { background: #eaf3de; color: #3b6d11; }
-.slots-low { background: #faeeda; color: #854f0b; }
-.slots-out { background: #fcebeb; color: #a32d2d; }
+/* BADGES TABLE */
+.status-badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; }
+.status-confirmed { background: #e5f9f0; color: #34c759; }
+.status-pending { background: #fff3cd; color: #856404; }
+.tag-table-serv { background: #f2f2f7; color: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
 
-/* BOOKING FORM */
-.booking-section { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 12px; color: #666; font-weight: 500; }
-.form-input { padding: 8px 12px; border: 0.5px solid #e0e0d8; border-radius: 8px; background: #f5f5f3; color: #1a1a1a; font-size: 13px; font-family: inherit; }
-.form-input:focus { outline: none; border-color: #1a1a2e; box-shadow: 0 0 0 2px rgba(26,26,46,0.08); }
-.form-select { padding: 8px 12px; border: 0.5px solid #e0e0d8; border-radius: 8px; background: #f5f5f3; color: #1a1a1a; font-size: 13px; font-family: inherit; }
-.btn-book { width: 100%; padding: 12px; background: #1a1a2e; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
-.btn-book:hover { opacity: 0.88; }
+/* MODAL */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-box { background: #fff; border-radius: 16px; padding: 2rem; width: 100%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); position: relative; }
+.modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8e8e93; }
 
-/* SUCCESS */
-.success-banner { background: #eaf3de; border: 0.5px solid #c0dd97; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: none; }
-.success-banner.show { display: block; }
-.success-banner p { font-size: 13px; color: #3b6d11; font-weight: 500; }
-
-/* FAB */
-.fab-adm { position: fixed; bottom: 20px; left: 20px; z-index: 100; background: #fff; border: 0.5px solid #ccc; border-radius: 12px; padding: 10px 16px; font-size: 12px; color: #666; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: background 0.15s; display: flex; align-items: center; gap: 6px; font-family: inherit; }
-.fab-adm:hover { background: #f5f5f3; }
-
-/* === ADMIN === */
-.login-wrap { max-width: 380px; margin: 3rem auto; }
-.login-card { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 2rem; }
-.login-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
-.login-sub { font-size: 13px; color: #888; margin-bottom: 1.5rem; }
-.login-error { background: #fcebeb; border: 0.5px solid #f09595; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #a32d2d; margin-bottom: 12px; display: none; }
-.login-error.show { display: block; }
-.btn-back { width: 100%; margin-top: 8px; padding: 10px; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; }
-
-.admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-.admin-title { font-size: 20px; font-weight: 500; }
-.admin-user-chip { font-size: 12px; background: #f5f5f3; border: 0.5px solid #e0e0d8; border-radius: 20px; padding: 4px 12px; color: #666; }
-.admin-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 0.5px solid #e0e0d8; }
-.admin-tab { padding: 8px 14px; font-size: 13px; border: none; background: transparent; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: all 0.15s; font-family: inherit; }
-.admin-tab.active { color: #1a1a2e; border-bottom-color: #1a1a2e; font-weight: 500; }
-.admin-tab-content { display: none; }
-.admin-tab-content.active { display: block; }
-
-/* SERVICE MANAGEMENT */
-.service-row { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.service-row-info { flex: 1; min-width: 120px; }
-.service-row-name { font-size: 14px; font-weight: 500; }
-.service-row-meta { font-size: 12px; color: #888; margin-top: 2px; }
-.service-row-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.slot-control { display: flex; align-items: center; gap: 6px; }
-.slot-btn { width: 26px; height: 26px; border: 0.5px solid #ccc; border-radius: 8px; background: #f5f5f3; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #1a1a1a; font-family: inherit; }
-.slot-count { font-size: 14px; font-weight: 500; min-width: 20px; text-align: center; }
-.toggle-btn { padding: 5px 12px; font-size: 12px; border-radius: 20px; border: 0.5px solid; cursor: pointer; font-weight: 500; transition: all 0.15s; font-family: inherit; }
-.toggle-on { background: #eaf3de; color: #3b6d11; border-color: #c0dd97; }
-.toggle-off { background: #fcebeb; color: #a32d2d; border-color: #f09595; }
-.add-service-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #fff; border: 0.5px dashed #aaa; border-radius: 12px; cursor: pointer; font-size: 13px; color: #888; width: 100%; margin-top: 8px; transition: background 0.15s; font-family: inherit; }
-.add-service-btn:hover { background: #f5f5f3; }
-
-/* APPOINTMENTS */
-.appointment-row { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-.apt-info { flex: 1; }
-.apt-name { font-size: 14px; font-weight: 500; }
-.apt-meta { font-size: 12px; color: #888; margin-top: 2px; }
-.apt-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: #eaf3de; color: #3b6d11; white-space: nowrap; }
-
-/* USERS */
-.user-row { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #f5f5f3; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #888; flex-shrink: 0; }
-.user-info { flex: 1; }
-.user-name { font-size: 14px; font-weight: 500; }
-.user-role { font-size: 12px; color: #888; }
-.role-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-.role-admin { background: #eeedfe; color: #534ab7; }
-.role-func { background: #e6f1fb; color: #185fa5; }
-.btn-edit { padding: 5px 10px; font-size: 12px; border: 0.5px solid #ccc; border-radius: 8px; background: transparent; cursor: pointer; color: #666; font-family: inherit; }
-.btn-remove { padding: 5px 10px; font-size: 12px; border: 0.5px solid #f09595; border-radius: 8px; background: transparent; cursor: pointer; color: #a32d2d; font-family: inherit; }
-
-/* SETTINGS */
-.settings-card { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px; padding: 1.5rem; margin-bottom: 12px; }
-.settings-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 1rem; color: #1a1a1a; }
-
-/* DAYS CHECKBOX */
-.days-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-.day-chip input[type=checkbox] { display: none; }
-.day-chip label { padding: 4px 10px; font-size: 12px; border: 0.5px solid #ccc; border-radius: 20px; cursor: pointer; color: #888; transition: all 0.15s; background: #f5f5f3; display: block; }
-.day-chip input:checked + label { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
-
-.logout-btn { padding: 8px 16px; background: transparent; border: 0.5px solid #f09595; border-radius: 8px; color: #a32d2d; font-size: 13px; cursor: pointer; font-family: inherit; }
-
-/* INLINE MODAL */
-.inline-modal-bg { display: none; min-height: 380px; background: rgba(0,0,0,0.32); border-radius: 12px; margin-bottom: 1.5rem; align-items: center; justify-content: center; }
-.inline-modal-bg.show { display: flex; }
-.modal-box { background: #fff; border-radius: 12px; padding: 1.5rem; width: 420px; max-width: 90%; border: 0.5px solid #e0e0d8; }
-.modal-box h3 { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
-.modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
-.btn-cancel { padding: 8px 16px; background: transparent; border: 0.5px solid #ccc; border-radius: 8px; cursor: pointer; font-size: 13px; color: #666; font-family: inherit; }
-.btn-save { padding: 8px 16px; background: #1a1a2e; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; font-family: inherit; }
-.btn-save-inline { width: auto; padding: 10px 24px; }
+/* UTILS */
+.action-btn { background: none; border: none; color: #007aff; font-weight: 500; cursor: pointer; margin-right: 12px; font-size: 0.9rem; }
+.action-btn.delete-btn { color: #ff3b30; }
+.grid-config { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media(max-width: 640px) { .grid-config { grid-template-columns: 1fr; } }
+.checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 8px; }
+.checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<nav class="nav">
+<div class="nav">
   <div class="nav-brand">
     <div class="nav-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l-.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l-.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
     </div>
-    <span class="nav-name" id="nav-brand-name">Minha Oficina</span>
+    <span class="nav-name dyn-name">Carregando Oficina...</span>
   </div>
-</nav>
+</div>
 
-<!-- HOME + AGENDAR -->
-<div class="page active" id="page-home">
-  <div class="hero-top">
-    <div class="hero-tag" id="hero-tag">Bem-vindo</div>
-    <div class="hero-title" id="hero-title">Sua oficina de confiança</div>
-    <div class="hero-desc" id="hero-desc">Agende seus serviços automotivos com facilidade, escolha data e horário em tempo real.</div>
-    <div class="hours-badge" id="hours-badge" style="display:none;">
-      <div class="hours-badge-icon">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
-        </svg>
+<div id="page-home" class="page active">
+  <div class="container">
+    <div class="hero">
+      <h1 class="dyn-name">Oficina</h1>
+      <p id="info-desc">Carregando informações...</p>
+      <div class="info-row">
+        <div class="info-item" id="info-phone">Telefone: --</div>
+        <div class="info-item" id="info-address">Endereço: --</div>
+        <div class="info-item" id="info-hours">Funcionamento: --</div>
       </div>
+      <div style="margin-top: 1.5rem;">
+        <button class="btn btn-secondary" onclick="showPage('admin-gate')">Sou Funcionário</button>
+      </div>
+    </div>
+
+    <div class="sec-title">Nossos Serviços</div>
+    <div class="grid-serv" id="services-grid"></div>
+
+    <div class="banner-success" id="success-banner">
+      <h3>Agendamento Solicitado!</h3>
+      <p id="success-detail"></p>
+      <button class="btn btn-secondary" style="margin-top:12px; height:32px;" onclick="document.getElementById('success-banner').classList.remove('show')">Fechar</button>
+    </div>
+
+    <div class="form-wrap" id="booking-form-wrap" style="display:none; margin-top:2rem;">
+      <h2 style="font-size:1.4rem; font-weight:600; margin-bottom:4px;" id="b-title">Serviço</h2>
+      <p style="color:#666; font-size:0.95rem; margin-bottom:1.5rem;" id="b-desc"></p>
+      
+      <div class="form-group">
+        <label>Seu Nome *</label>
+        <input type="text" class="form-control" id="f-name" placeholder="Ex: João Silva" />
+      </div>
+      <div class="form-group">
+        <label>Telefone / WhatsApp *</label>
+        <input type="text" class="form-control" id="f-phone" oninput="maskPhone(this)" placeholder="(00) 00000-0000" />
+      </div>
+      <div class="grid-config" style="gap:1rem; margin-bottom:0;">
+        <div class="form-group">
+          <label>Modelo do Veículo</label>
+          <input type="text" class="form-control" id="f-vehicle" placeholder="Ex: Civic 2020" />
+        </div>
+        <div class="form-group">
+          <label>Placa</label>
+          <input type="text" class="form-control" id="f-plate" placeholder="AAA-0A00" style="text-transform:uppercase;" />
+        </div>
+      </div>
+      <div class="grid-config" style="gap:1rem; margin-bottom:1.5rem;">
+        <div class="form-group">
+          <label>Data Escolhida *</label>
+          <input type="date" class="form-control" id="f-date" onchange="updateAvailableTimes()" />
+        </div>
+        <div class="form-group">
+          <label>Horário Disponível *</label>
+          <select class="form-control" id="f-time"></select>
+        </div>
+      </div>
+      
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmBooking()">Confirmar Agendamento</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('booking-form-wrap').style.display='none'">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page-admin-gate" class="page">
+  <div class="gate-wrap">
+    <h2 style="font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; text-align:center;">Acesso Restrito</h2>
+    <div class="form-group">
+      <label>Usuário</label>
+      <input type="text" class="form-control" id="login-user" />
+    </div>
+    <div class="form-group" style="margin-bottom:2rem;">
+      <label>Senha</label>
+      <input type="password" class="form-control" id="login-pass" />
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" onclick="login()">Entrar</button>
+    <button class="btn btn-secondary" style="width:100%;" onclick="showPage('home')">Voltar ao Início</button>
+  </div>
+</div>
+
+<div id="page-admin" class="page">
+  <div class="container">
+    <div class="admin-header">
       <div>
-        <div class="hours-badge-label">Funcionamento</div>
-        <div class="hours-badge-text" id="hours-display"></div>
-        <div class="hours-badge-complement" id="hours-complement" style="display:none;"></div>
+        <h1 style="font-size:1.8rem; font-weight:700; letter-spacing:-0.5px;">Painel de Controle</h1>
+        <p style="color:#666; font-size:0.95rem; margin-top:2px;">Olá, <span id="adm-user-name"></span></p>
       </div>
-    </div>
-  </div>
-
-  <div class="contact-row" id="contact-row" style="display:none;">
-    <div class="contact-item" id="ci-address" style="display:none;">
-      <span class="contact-label">Endereço</span>
-      <span class="contact-value" id="info-address-full">—</span>
-      <span class="contact-sub" id="info-bairro"></span>
-    </div>
-    <div class="contact-divider" id="ci-divider" style="display:none;"></div>
-    <div class="contact-item" id="ci-phone" style="display:none;">
-      <span class="contact-label">Telefone / WhatsApp</span>
-      <span class="contact-value" id="info-phone">—</span>
-    </div>
-  </div>
-
-  <div class="success-banner" id="success-banner">
-    <p>Agendamento confirmado! <span id="success-detail"></span></p>
-  </div>
-
-  <p class="section-title">Selecione um serviço para agendar</p>
-  <div class="services-grid" id="home-services"></div>
-
-  <div class="booking-section" id="booking-form-wrap" style="display:none;">
-    <p class="section-title" style="margin-bottom:1rem;">Seus dados e horário</p>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nome completo</label>
-        <input class="form-input" id="f-name" placeholder="João da Silva" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Telefone / WhatsApp</label>
-        <input class="form-input" id="f-phone" placeholder="(69) 99999-0000" maxlength="15" oninput="maskPhone(this)" />
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Placa do veículo</label>
-        <input class="form-input" id="f-plate" placeholder="ABC-1234" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Modelo do veículo</label>
-        <input class="form-input" id="f-vehicle" placeholder="Honda CG 160" />
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Data</label>
-        <input class="form-input" type="date" id="f-date" onchange="updateAvailableTimes()" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Horário disponível</label>
-        <select class="form-select" id="f-time"></select>
-      </div>
-    </div>
-    <button class="btn-book" onclick="confirmBooking()">Confirmar agendamento</button>
-  </div>
-</div>
-
-<!-- ADMIN GATE -->
-<div class="page" id="page-admin-gate">
-  <div class="login-wrap">
-    <div class="login-card">
-      <p class="login-title">Painel administrativo</p>
-      <p class="login-sub">Entre com suas credenciais para continuar.</p>
-      <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
-      <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label">Usuário</label>
-        <input class="form-input" id="login-user" placeholder="admin" />
-      </div>
-      <div class="form-group" style="margin-bottom:16px;">
-        <label class="form-label">Senha</label>
-        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" />
-      </div>
-      <button class="btn-book" onclick="doLogin()">Entrar</button>
-      <button class="btn-back" onclick="showPage('home')">Voltar ao site</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN PANEL -->
-<div class="page" id="page-admin">
-  <div class="admin-header">
-    <p class="admin-title">Painel administrativo</p>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <div class="admin-user-chip"><span id="logged-user-label">admin</span></div>
-      <button class="logout-btn" onclick="doLogout()">Sair</button>
-    </div>
-  </div>
-  <div class="admin-tabs">
-    <button class="admin-tab active" onclick="switchTab('servicos',this)">Serviços</button>
-    <button class="admin-tab" onclick="switchTab('agendamentos',this)">Agendamentos</button>
-    <button class="admin-tab" onclick="switchTab('usuarios',this)">Usuários</button>
-    <button class="admin-tab" onclick="switchTab('configuracoes',this)">Configurações</button>
-  </div>
-
-  <!-- SERVICOS -->
-  <div class="admin-tab-content active" id="tab-servicos">
-    <div id="admin-service-list"></div>
-    <button class="add-service-btn" id="add-svc-btn" onclick="openModal('modal-service')">+ Adicionar novo serviço</button>
-    <div class="inline-modal-bg" id="modal-service">
-      <div class="modal-box">
-        <h3>Novo serviço</h3>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Nome do serviço</label><input class="form-input" id="ms-name" placeholder="Ex: Troca de óleo" /></div>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Descrição breve</label><input class="form-input" id="ms-desc" placeholder="Ex: Inclui filtro e óleo sintético" /></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Preço (R$)</label><input class="form-input" id="ms-price" placeholder="Ex: 80,00" /></div>
-          <div class="form-group"><label class="form-label">Vagas disponíveis</label><input class="form-input" type="number" id="ms-slots" placeholder="Ex: 3" min="0" /></div>
-        </div>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Tipo de veículo</label>
-          <select class="form-select" id="ms-vehicle"><option value="Todos">Todos</option><option value="Moto">Moto</option><option value="Carro">Carro</option><option value="Caminhonete">Caminhonete</option></select>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeModal('modal-service')">Cancelar</button>
-          <button class="btn-save" onclick="addService()">Adicionar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AGENDAMENTOS -->
-  <div class="admin-tab-content" id="tab-agendamentos">
-    <div id="appointments-list"></div>
-  </div>
-
-  <!-- USUARIOS -->
-  <div class="admin-tab-content" id="tab-usuarios">
-    <div id="users-list"></div>
-    <button class="add-service-btn" id="add-user-btn" onclick="openModal('modal-user')">+ Adicionar usuário</button>
-    <div class="inline-modal-bg" id="modal-user">
-      <div class="modal-box">
-        <h3>Novo usuário</h3>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Nome</label><input class="form-input" id="mu-name" placeholder="Ex: Ana Lima" /></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Login</label><input class="form-input" id="mu-login" placeholder="analima" /></div>
-          <div class="form-group"><label class="form-label">Senha</label><input class="form-input" type="password" id="mu-pass" placeholder="••••••••" /></div>
-        </div>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Perfil</label>
-          <select class="form-select" id="mu-role"><option value="admin">Administrador (acesso total)</option><option value="func">Funcionário (somente visualizar)</option></select>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeModal('modal-user')">Cancelar</button>
-          <button class="btn-save" onclick="addUser()">Adicionar</button>
-        </div>
-      </div>
-    </div>
-    <div class="inline-modal-bg" id="modal-edit-user">
-      <div class="modal-box">
-        <h3>Editar usuário</h3>
-        <input type="hidden" id="eu-index" />
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Nome</label><input class="form-input" id="eu-name" /></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Login</label><input class="form-input" id="eu-login" /></div>
-          <div class="form-group"><label class="form-label">Nova senha</label><input class="form-input" type="password" id="eu-pass" placeholder="Em branco para manter" /></div>
-        </div>
-        <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Cargo</label>
-          <select class="form-select" id="eu-role"><option value="admin">Administrador</option><option value="func">Funcionário</option></select>
-        </div>
-        <div class="modal-actions">
-          <button class="btn-cancel" onclick="closeModal('modal-edit-user')">Cancelar</button>
-          <button class="btn-save" onclick="saveEditUser()">Salvar alterações</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONFIGURACOES -->
-  <div class="admin-tab-content" id="tab-configuracoes">
-    <div class="settings-card">
-      <h3>Informações da oficina</h3>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Nome da oficina</label><input class="form-input" id="set-name" placeholder="Ex: Oficina do João" /></div>
-        <div class="form-group"><label class="form-label">Telefone / WhatsApp</label><input class="form-input" id="set-phone" placeholder="(69) 99999-0000" maxlength="15" oninput="maskPhone(this)" /></div>
-      </div>
-      <div class="form-row" style="grid-template-columns:2fr 1fr;margin-bottom:12px;">
-        <div class="form-group"><label class="form-label">Rua</label><input class="form-input" id="set-rua" placeholder="Ex: Av. das Flores" /></div>
-        <div class="form-group"><label class="form-label">Número</label><input class="form-input" id="set-numero" placeholder="Ex: 142" /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Bairro</label><input class="form-input" id="set-bairro" placeholder="Ex: Centro" /></div>
-        <div class="form-group"><label class="form-label">Descrição do site</label><input class="form-input" id="set-desc" placeholder="Frase exibida na página inicial" /></div>
-      </div>
-      <button class="btn-book btn-save-inline" onclick="saveSettings()">Salvar informações</button>
+      <button class="btn btn-secondary" onclick="logout()">Sair</button>
     </div>
 
-    <div class="settings-card">
-      <h3>Horário de funcionamento</h3>
-      <div class="form-row" style="margin-bottom:12px;">
-        <div class="form-group">
-          <label class="form-label">Horário de abertura</label>
-          <input class="form-input" type="time" id="set-open" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Horário de fechamento</label>
-          <input class="form-input" type="time" id="set-close" />
-        </div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="selectTab('agenda')">Agenda</button>
+      <button class="tab-btn" onclick="selectTab('servicos')">Serviços</button>
+      <button class="tab-btn" onclick="selectTab('config')">Configurações Oficina</button>
+    </div>
+
+    <div id="tab-agenda" class="tab-content active">
+      <div class="sec-title">Próximos Agendamentos</div>
+      <div class="table-responsive">
+        <table id="table-agenda">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Veículo / Placa</th>
+              <th>Serviço</th>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label">Dias da semana abertos</label>
-        <div class="days-grid" style="margin-top:6px;">
-          <div class="day-chip"><input type="checkbox" id="d0" value="Dom" /><label for="d0">Dom</label></div>
-          <div class="day-chip"><input type="checkbox" id="d1" value="Seg" /><label for="d1">Seg</label></div>
-          <div class="day-chip"><input type="checkbox" id="d2" value="Ter" /><label for="d2">Ter</label></div>
-          <div class="day-chip"><input type="checkbox" id="d3" value="Qua" /><label for="d3">Qua</label></div>
-          <div class="day-chip"><input type="checkbox" id="d4" value="Qui" /><label for="d4">Qui</label></div>
-          <div class="day-chip"><input type="checkbox" id="d5" value="Sex" /><label for="d5">Sex</label></div>
-          <div class="day-chip"><input type="checkbox" id="d6" value="Sáb" /><label for="d6">Sáb</label></div>
+    </div>
+
+    <div id="tab-servicos" class="tab-content">
+      <div class="sec-title">
+        <span>Serviços Oferecidos</span>
+        <button class="btn btn-primary" style="height:34px; font-size:0.9rem;" onclick="openModal('modal-service')">+ Novo Serviço</button>
+      </div>
+      <div class="table-responsive">
+        <table id="table-servicos">
+          <thead>
+            <tr>
+              <th>Nome do Serviço</th>
+              <th>Preço</th>
+              <th>Vagas Padrão</th>
+              <th>Tipo de Veículo</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-config" class="tab-content">
+      <div class="sec-title">Informações Gerais</div>
+      <div class="form-wrap" style="max-width:100%; margin:0 0 2rem 0; padding:1.5rem;">
+        <div class="grid-config">
+          <div class="form-group">
+            <label>Nome da Oficina</label>
+            <input type="text" class="form-control" id="set-name" />
+          </div>
+          <div class="form-group">
+            <label>Telefone de Contato</label>
+            <input type="text" class="form-control" id="set-phone" oninput="maskPhone(this)" />
+          </div>
         </div>
+        <div class="grid-config" style="grid-template-columns: 2fr 1fr 2fr; gap:1rem;">
+          <div class="form-group">
+            <label>Rua / Av</label>
+            <input type="text" class="form-control" id="set-rua" />
+          </div>
+          <div class="form-group">
+            <label>Número</label>
+            <input type="text" class="form-control" id="set-numero" />
+          </div>
+          <div class="form-group">
+            <label>Bairro</label>
+            <input type="text" class="form-control" id="set-bairro" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Breve Descrição / Slogan</label>
+          <input type="text" class="form-control" id="set-desc" />
+        </div>
+        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="saveSettings()">Salvar Dados Principais</button>
       </div>
-      <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label">Complemento (opcional — não aparece se vazio)</label>
-        <input class="form-input" id="set-complement" placeholder="Ex: Exceto feriados" />
+
+      <div class="sec-title">Horário de Funcionamento</div>
+      <div class="form-wrap" style="max-width:100%; margin:0; padding:1.5rem;">
+        <div class="grid-config" style="grid-template-columns: 1fr 1fr 2fr; gap:1rem;">
+          <div class="form-group">
+            <label>Abertura</label>
+            <input type="time" class="form-control" id="set-open" />
+          </div>
+          <div class="form-group">
+            <label>Fechamento</label>
+            <input type="time" class="form-control" id="set-close" />
+          </div>
+          <div class="form-group">
+            <label>Complemento (Ex: Almoço 12h-13h)</label>
+            <input type="text" class="form-control" id="set-complement" placeholder="Ex: Fechado para almoço das 12h às 13h" />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Dias de Trabalho</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item"><input type="checkbox" id="d0" value="Dom" /><label for="d0">Dom</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d1" value="Seg" /><label for="d1">Seg</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d2" value="Ter" /><label for="d2">Ter</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d3" value="Qua" /><label for="d3">Qua</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d4" value="Qui" /><label for="d4">Qui</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d5" value="Sex" /><label for="d5">Sex</label></div>
+            <div class="checkbox-item"><input type="checkbox" id="d6" value="Sáb" /><label for="d6">Sáb</label></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="saveHours()">Salvar Horários de Trabalho</button>
       </div>
-      <button class="btn-book btn-save-inline" onclick="saveHours()">Salvar horários</button>
     </div>
   </div>
 </div>
 
-<!-- FAB -->
-<button class="fab-adm" onclick="showPage('admin-gate')">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-  Sou Funcionário
-</button>
+<div class="modal-overlay" id="modal-service">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-service')">&times;</button>
+    <h2 style="font-size:1.3rem; font-weight:600; margin-bottom:1.5rem;">Cadastrar Novo Serviço</h2>
+    
+    <div class="form-group">
+      <label>Nome do Serviço *</label>
+      <input type="text" class="form-control" id="ms-name" placeholder="Ex: Troca de Óleo Completa" />
+    </div>
+    <div class="form-group">
+      <label>Descrição Opcional</label>
+      <textarea class="form-control" id="ms-desc" rows="2" placeholder="O que inclui o serviço..."></textarea>
+    </div>
+    <div class="grid-config" style="gap:1rem; margin-bottom:1.5rem;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Preço Sugerido (R$) *</label>
+        <input type="text" class="form-control" id="ms-price" placeholder="99,90" />
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Vagas Diárias *</label>
+        <input type="number" class="form-control" id="ms-slots" value="4" min="1" />
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:2rem;">
+      <label>Atende qual tipo de veículo?</label>
+      <select class="form-control" id="ms-vehicle">
+        <option value="all">Todos (Carros e Motos)</option>
+        <option value="car">Apenas Carros</option>
+        <option value="moto">Apenas Motos</option>
+      </select>
+    </div>
+    
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-secondary" onclick="closeModal('modal-service')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addService()">Salvar Serviço</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // 1. INICIALIZAÇÃO E CONFIGURAÇÃO DO BANCO DE DADOS
@@ -449,7 +409,6 @@ function fmtDate(dStr) {
 
 // 3. NAVEGAÇÃO ENTRE PÁGINAS
 async function showPage(p) {
-  // Esconde todas as páginas
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   
   if (p === 'admin-gate') {
@@ -458,14 +417,13 @@ async function showPage(p) {
       renderAdmin(); 
       return; 
     }
-    // Garante que vai abrir o ID exato do seu HTML
     const gate = document.getElementById('page-admin-gate');
-    if (gate) gate.classList.add('active');
+    if (gate) gate.classList.add('active'); 
     return;
   }
   
   const targetPage = document.getElementById('page-'+p);
-  if (targetPage) targetPage.classList.add('active');
+  if(targetPage) targetPage.classList.add('active');
   
   if (p === 'home') {
     renderHome();
@@ -491,13 +449,13 @@ function renderHome() {
   document.querySelectorAll('.dyn-name').forEach(el => el.textContent = s.name || 'Oficina');
   
   const phoneEl = document.getElementById('info-phone');
-  if(phoneEl) phoneEl.textContent = s.phone ? 'Telefone: ' + s.phone : '';
+  if(phoneEl) phoneEl.textContent = s.phone ? 'Telefone: ' + s.phone : 'Telefone: --';
   
   const addrEl = document.getElementById('info-address');
   if(addrEl) {
     const p1 = [s.rua, s.numero].filter(Boolean).join(', ');
     const full = [p1, s.bairro].filter(Boolean).join(' - ');
-    addrEl.textContent = full ? 'Endereço: ' + full : '';
+    addrEl.textContent = full ? 'Endereço: ' + full : 'Endereço: --';
   }
   
   const hoursEl = document.getElementById('info-hours');
@@ -507,12 +465,12 @@ function renderHome() {
       const compStr = h.complement ? ' — ' + h.complement : '';
       hoursEl.textContent = 'Funcionamento: ' + h.open + ' às ' + h.close + daysStr + compStr;
     } else {
-      hoursEl.textContent = '';
+      hoursEl.textContent = 'Funcionamento: Não definido';
     }
   }
   
   const descEl = document.getElementById('info-desc');
-  if(descEl) descEl.textContent = s.desc || '';
+  if(descEl) descEl.textContent = s.desc || 'Sua oficina mecânica de confiança.';
   
   renderServiceCards();
 }
@@ -525,7 +483,7 @@ function renderServiceCards() {
   const availableServices = state.services.filter(s => s.available);
   
   if(availableServices.length === 0) {
-    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#666; padding:2rem;">Nenhum serviço disponível de momento.</p>';
+    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#666; padding:2rem;">Nenhum serviço disponível no momento.</p>';
     return;
   }
 
@@ -645,20 +603,14 @@ async function confirmBooking() {
 
 // 6. ÁREA ADMINISTRATIVA (AUTENTICAÇÃO E FUNÇÕES)
 function login() {
-  // Pega os valores usando os IDs corretos do seu HTML (login-user e login-pass)
   const l = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value.trim();
-  
-  // Procura o usuário administrador no array local
   const u = state.users.find(x => x.login === l && x.pass === p);
   
   if(u) {
     state.loggedUser = u;
-    // Limpa os campos de texto
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
-    
-    // Abre o painel administrativo
     showPage('admin-gate');
   } else {
     alert('Usuário ou senha incorreta.');
@@ -670,6 +622,7 @@ function logout() {
   showPage('home');
 }
 
+// Função central do painel admin
 function renderAdmin() {
   document.getElementById('adm-user-name').textContent = state.loggedUser ? state.loggedUser.name : '';
   selectTab('agenda');
@@ -684,11 +637,10 @@ function renderAdminAppointments() {
   tbody.innerHTML = '';
   
   if(state.appointments.length===0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Nenhum agendamento registado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Nenhum agendamento registrado.</td></tr>';
     return;
   }
   
-  // Ordena por data e hora mais recente
   const sorted = [...state.appointments].sort((a,b) => (a.date+a.time) > (b.date+b.time) ? 1 : -1);
   
   sorted.forEach(a => {
@@ -730,7 +682,7 @@ function renderAdminServices() {
       <td><strong>${s.name}</strong></td>
       <td>R$ ${s.price}</td>
       <td>${s.slots}</td>
-      <td style="text-transform:capitalize;">${s.vehicle==='all'?'Todos':s.vehicle}</td>
+      <td style="text-transform:capitalize;">${s.vehicle==='all'?'Todos':s.vehicle==='car'?'Carros':'Motos'}</td>
       <td><span class="status-badge ${s.available?'status-confirmed':'status-pending'}">${s.available?'Ativo':'Inativo'}</span></td>
       <td>
         <button class="action-btn" onclick="toggleService(${s.id}, ${s.available})">${s.available?'Desativar':'Ativar'}</button>
@@ -816,7 +768,7 @@ async function saveSettings() {
   if (error) return alert(error.message);
 
   await initApp();
-  alert('Informações guardadas no banco de dados!');
+  alert('Informações guardadas com sucesso!');
 }
 
 async function saveHours() {
@@ -834,15 +786,17 @@ async function saveHours() {
   if (error) return alert('Erro ao salvar horários: ' + error.message);
 
   await initApp();
-  alert('Horários salvos no banco de dados!');
+  alert('Horários salvos com sucesso!');
 }
 
 // 9. INICIALIZAÇÃO ASSÍNCRONA DO APLICATIVO
 async function initApp() {
   try {
+    // 1. Buscar Configurações
     const { data: settleData } = await _supabase.from('settings').select('*').single();
     if (settleData) state.settings = settleData;
 
+    // 2. Buscar Horários
     const { data: hoursData } = await _supabase.from('hours').select('*').single();
     if (hoursData) {
       state.hours = {
@@ -853,6 +807,7 @@ async function initApp() {
       };
     }
 
+    // 3. Buscar Serviços
     const { data: servicesData } = await _supabase.from('services').select('*').order('name');
     if (servicesData) {
       state.services = servicesData.map(s => ({
@@ -862,6 +817,7 @@ async function initApp() {
       }));
     }
 
+    // 4. Buscar Agendamentos
     const { data: aptData } = await _supabase.from('appointments').select('*');
     if (aptData) {
       state.appointments = aptData.map(a => ({
@@ -870,7 +826,7 @@ async function initApp() {
       }));
     }
 
-    // Renderiza tudo na ordem correta após as respostas do banco
+    // Força a renderização visual na ordem certa
     renderHome();
     if (state.loggedUser) {
       renderAdmin();
@@ -880,7 +836,7 @@ async function initApp() {
   }
 }
 
-// Executa o arranque da aplicação
+// Executa o arranque inicial do app
 initApp();
 </script>
 </body>
