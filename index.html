@@ -392,6 +392,38 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-funcionario">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-funcionario')">&times;</button>
+    <h2 style="font-size:1.3rem; font-weight:600; margin-bottom:1.5rem;">Cadastrar Novo Funcionário</h2>
+    
+    <div class="form-group">
+      <label>Nome Completo *</label>
+      <input type="text" class="form-control" id="mf-name" placeholder="Ex: Carlos Souza" />
+    </div>
+    <div class="form-group">
+      <label>Nome de Usuário (Login) *</label>
+      <input type="text" class="form-control" id="mf-login" placeholder="Ex: carlos.mecanico" />
+    </div>
+    <div class="form-group">
+      <label>Senha de Acesso *</label>
+      <input type="text" class="form-control" id="mf-pass" placeholder="Defina uma senha" />
+    </div>
+    <div class="form-group" style="margin-bottom:2rem;">
+      <label>Nível de Acesso (Cargo)</label>
+      <select class="form-control" id="mf-role">
+        <option value="mecanico">Funcionário / Mecânico</option>
+        <option value="admin">Administrador Geral</option>
+      </select>
+    </div>
+    
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-secondary" onclick="closeModal('modal-funcionario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addUser()">Salvar Funcionário</button>
+    </div>
+  </div>
+</div>
+  
 <script>
 // 1. INICIALIZAÇÃO E CONFIGURAÇÃO DO BANCO DE DADOS
 const SUPABASE_URL = 'https://kwtflhlcoxvmvtspaozn.supabase.co'; 
@@ -653,6 +685,7 @@ function renderAdmin() {
   selectTab('agenda');
   renderAdminAppointments();
   renderAdminServices();
+  renderAdminUsers();
   loadSettingsForm();
 }
 
@@ -716,6 +749,77 @@ function renderAdminServices() {
     `;
     tbody.appendChild(tr);
   });
+}
+
+function renderAdminUsers() {
+  const tbody = document.querySelector('#table-users tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  
+  state.users.forEach(u => {
+    const tr = document.createElement('tr');
+    
+    // Bloqueia a exclusão do administrador padrão master por segurança nas ações
+    const isMasterAdmin = u.login === 'admin';
+    const deleteBtn = isMasterAdmin ? '' : `<button class="action-btn delete-btn" onclick="deleteUser(${u.id})">Apagar</button>`;
+    
+    tr.innerHTML = `
+      <td><strong>${u.name}</strong></td>
+      <td><code>${u.login}</code></td>
+      <td><input type="text" class="form-control" style="height:30px; max-width:140px; font-size:0.85rem;" value="${u.pass}" onchange="updateUserPassword(${u.id}, this.value)" /></td>
+      <td style="text-transform:capitalize;"><span class="tag-table-serv">${u.role === 'admin' ? 'Admin' : 'Funcionário'}</span></td>
+      <td>
+        ${deleteBtn}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function addUser() {
+  const name = document.getElementById('mf-name').value.trim();
+  const login = document.getElementById('mf-login').value.trim().toLowerCase();
+  const pass = document.getElementById('mf-pass').value.trim();
+  const role = document.getElementById('mf-role').value;
+  
+  if (!name || !login || !pass) { alert('Preencha todos os campos obrigatórios.'); return; }
+  
+  // Verifica se já existe alguém com esse login cadastrado
+  if (state.users.some(x => x.login === login)) { alert('Este nome de usuário (login) já está em uso.'); return; }
+
+  const { error } = await _supabase.from('users').insert([{ name, login, pass, role }]);
+  if (error) return alert('Erro ao salvar no banco: ' + error.message);
+
+  closeModal('modal-funcionario');
+  ['mf-name','mf-login','mf-pass'].forEach(id => document.getElementById(id).value = '');
+  
+  await initApp();
+  renderAdminUsers();
+  alert('Funcionário cadastrado com sucesso!');
+}
+
+async function updateUserPassword(id, newPassword) {
+  if (!newPassword.trim()) { alert('A senha não pode ficar em branco.'); return; }
+  
+  // Se for o admin master sem ID salvo no banco ainda, ele cria ou pula
+  if (!id) { alert('Aviso: Usuários padrões do sistema não podem ser modificados até estarem gravados no banco.'); return; }
+
+  const { error } = await _supabase.from('users').update({ pass: newPassword.trim() }).eq('id', id);
+  if (error) return alert('Erro ao atualizar senha: ' + error.message);
+  
+  await initApp();
+  alert('Senha alterada e sincronizada com sucesso!');
+}
+
+async function deleteUser(id) {
+  if (!id) return;
+  if (!confirm('Deseja realmente remover os acessos deste funcionário?')) return;
+  
+  const { error } = await _supabase.from('users').delete().eq('id', id);
+  if (error) return alert(error.message);
+  
+  await initApp();
+  renderAdminUsers();
 }
 
 async function toggleService(id, currentStatus) {
@@ -849,6 +953,15 @@ async function initApp() {
         ...a,
         serviceIdx: state.services.findIndex(s => s.id === a.service_id)
       }));
+    }
+
+   // 5. Buscar Usuários/Funcionários do Supabase
+    const { data: usersData } = await _supabase.from('users').select('*');
+    if (usersData && usersData.length > 0) {
+      state.users = usersData;
+    } else {
+      // Se a tabela estiver totalmente vazia, mantém o admin padrão para você não perder o acesso
+      state.users = [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }];
     }
 
     // Força a renderização visual na ordem certa
