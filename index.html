@@ -645,17 +645,23 @@ async function confirmBooking() {
 
 // 6. ÁREA ADMINISTRATIVA (AUTENTICAÇÃO E FUNÇÕES)
 function login() {
-  const l = document.getElementById('adm-login').value.trim();
-  const p = document.getElementById('adm-pass').value.trim();
+  // Pega os valores usando os IDs corretos do seu HTML (login-user e login-pass)
+  const l = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  
+  // Procura o usuário administrador no array local
   const u = state.users.find(x => x.login === l && x.pass === p);
   
   if(u) {
     state.loggedUser = u;
-    document.getElementById('adm-login').value = '';
-    document.getElementById('adm-pass').value = '';
+    // Limpa os campos de texto
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    
+    // Abre o painel administrativo
     showPage('admin-gate');
   } else {
-    alert('Utilizador ou palavra-passe incorreta.');
+    alert('Usuário ou senha incorreta.');
   }
 }
 
