@@ -489,9 +489,12 @@ function renderHome() {
   document.getElementById('info-address-full').textContent = [s.rua, s.numero].filter(Boolean).join(', ') || '—';
   document.getElementById('info-bairro').textContent = s.bairro || '';
   document.getElementById('info-phone').textContent = s.phone || '—';
-
+  document.getElementById('info-desc').textContent = state.settings.desc || '';
+  
+  // Apenas adicione esta linha aqui no final:
   renderServiceCards();
 }
+
 
 function renderServiceCards() {
   const el = document.getElementById('home-services');
@@ -901,24 +904,34 @@ async function initApp() {
 
     // 3. Buscar Serviços
     const { data: servicesData } = await _supabase.from('services').select('*').order('name');
-    if (servicesData) state.services = servicesData;
+    if (servicesData) {
+      // Mapeia garantindo que propriedades numéricas e booleanas venham corretas
+      state.services = servicesData.map(s => ({
+        ...s,
+        slots: parseInt(s.slots) || 0,
+        available: s.available !== false
+      }));
+    }
 
     // 4. Buscar Agendamentos
     const { data: aptData } = await _supabase.from('appointments').select('*');
     if (aptData) {
-      // Ajustar os nomes das colunas de snake_case do banco para o seu state
       state.appointments = aptData.map(a => ({
         ...a,
         serviceIdx: state.services.findIndex(s => s.id === a.service_id)
       }));
     }
 
+    // CORREÇÃO CRUCIAL: Quando o app inicia, ele precisa renderizar os cards e os serviços do admin
     renderHome();
+    renderServiceCards(); 
+    if (state.loggedUser) {
+      renderAdminServices();
+    }
   } catch (error) {
     console.error("Erro ao carregar dados do Supabase:", error);
   }
 }
-
 // Inicia o aplicativo buscando os dados online
 initApp();
 </script>
