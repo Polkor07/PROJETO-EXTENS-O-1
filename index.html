@@ -700,7 +700,7 @@ function toMin(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
 // Todos os slots de 15 em 15 minutos durante 24h
 const ALL_TIMES = [];
 for (let h = 0; h < 24; h++) {
-  for (const m of [0, 15, 30, 45]) {
+  for (let m = 0; m < 60; m++) {
     ALL_TIMES.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
   }
 }
@@ -772,7 +772,7 @@ function buildTimePicker() {
     hoursCol.appendChild(el);
   });
 
-  [0,15,30,45].forEach(mm => {
+  Array.from({length:60},(_,i)=>i).forEach(mm => {
     const el = document.createElement('div');
     el.className = 'time-opt' + (mm === curM ? ' selected' : '');
     el.textContent = String(mm).padStart(2,'0');
@@ -800,7 +800,7 @@ function refreshMinsCol(blocked, closeMin) {
   const prevM = prevSelM ? parseInt(prevSelM.dataset.val) : 0;
   const minsCol = document.getElementById('tp-mins');
   minsCol.innerHTML = '';
-  [0,15,30,45].forEach(mm => {
+  Array.from({length:60},(_,i)=>i).forEach(mm => {
     if (hh*60+mm >= closeMin) return;
     const slot = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
     const el = document.createElement('div');
