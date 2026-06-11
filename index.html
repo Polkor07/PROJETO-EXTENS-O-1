@@ -1096,23 +1096,25 @@ async function addService() {
   const name = document.getElementById('ms-name').value.trim();
   const desc = document.getElementById('ms-desc').value.trim();
   const rawPrice = document.getElementById('ms-price').value.trim();
-  const slots = parseInt(document.getElementById('ms-slots').value)||0;
-  const duration_h = parseInt(document.getElementById('ms-duration-h').value)||0;
-  const duration_m = parseInt(document.getElementById('ms-duration-m').value)||0;
+  const slots = parseInt(document.getElementById('ms-slots').value) || 0;
+  
+  // Tratamento preventivo para garantir que envie um número válido para o banco
+  const duration_h = parseInt(document.getElementById('ms-duration-h').value) || 0;
+  const duration_m = parseInt(document.getElementById('ms-duration-m').value) || 0;
   const price = fmtPrice(rawPrice);
 
-  if (!name){alert('Informe o nome do serviço.');return;}
-  if (duration_h === 0 && duration_m === 0){alert('Informe a duração do serviço.');return;}
+  if (!name) { alert('Informe o nome do serviço.'); return; }
+  if (duration_h === 0 && duration_m === 0) { alert('Informe a duração do serviço.'); return; }
 
   const { error } = await _supabase.from('services').insert([{
     name, desc, price, slots, duration_h, duration_m, available: true
   }]);
 
-  if (error) return alert(error.message);
+  if (error) return alert("Erro ao salvar no Supabase: " + error.message);
 
   closeModal('modal-service');
-  ['ms-name','ms-desc','ms-price','ms-slots','ms-duration-h','ms-duration-m'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('ms-duration-m').value='30';
+  ['ms-name', 'ms-desc', 'ms-price', 'ms-slots', 'ms-duration-h'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ms-duration-m').value = '30';
 
   await initApp();
   renderAdminServices();
@@ -1208,6 +1210,8 @@ async function initApp() {
       state.services = servicesData.map(s => ({
         ...s,
         slots: parseInt(s.slots) || 0,
+        duration_h: parseInt(s.duration_h) || 0, // Garante que herde valor numérico estável
+        duration_m: parseInt(s.duration_m) || 0, // Garante que herde valor numérico estável
         available: s.available !== false
       }));
     }
