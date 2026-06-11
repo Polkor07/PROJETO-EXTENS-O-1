@@ -504,6 +504,12 @@ tr:last-child td { border-bottom: none; }
 const SUPABASE_URL = 'https://kwtflhlcoxvmvtspaozn.supabase.co'; 
 const SUPABASE_KEY = 'sb_publishable_PzzU8O3tpoAOaPI2WfJo2Q_JdWOpwUN'; 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ALL_TIMES = [];
+for (let h = 0; h < 24; h++) {
+  for (let m = 0; m < 60; m += 15) {
+    ALL_TIMES.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
+  }
+}
 
 
 var state = {
@@ -709,12 +715,14 @@ function getBlockedTimes(date) {
     state.appointments.filter(a => a.date === date).forEach(a => {
       const aptStart = toMin(a.time);
       const svc = state.services.find(s => s.id === a.service_id);
-      const durMin = svc ? ((parseInt(svc.duration_h)||0)*60 + (parseInt(svc.duration_m)||0)) : 60;
+      
+      // >>> CORREÇÃO DA LEITURA DE HORAS E MINUTOS DA ATUALIZAÇÃO NOVO <<<
+      const durMin = svc ? ((parseInt(svc.duration_h) || 0) * 60 + (parseInt(svc.duration_m) || 0)) : 60;
       const aptEnd = aptStart + durMin;
       if (slotMin >= aptStart && slotMin < aptEnd) running++;
     });
 
-    if (running >= 2) blocked.add(slot);
+    if (running >= 2) blocked.add(slot); // Permite até 2 carros ao mesmo tempo por padrão
   });
 
   return blocked;
