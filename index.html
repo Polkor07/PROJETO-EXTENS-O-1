@@ -37,10 +37,6 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 .card-serv-price { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; }
 .card-serv-slots { font-size: 0.85rem; color: #ff3b30; font-weight: 500; margin-top: 2px; }
 
-/* BADGES */
-.badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
-.badge-car { background: #e3effb; color: #007aff; }
-.badge-moto { background: #e5f9f0; color: #34c759; }
 
 /* BUTTONS */
 .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 1.25rem; height: 40px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
@@ -48,8 +44,6 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 .btn-primary:hover { background: #2e2e4a; }
 .btn-secondary { background: #fff; color: #1a1a1a; border: 0.5px solid #e0e0d8; }
 .btn-secondary:hover { background: #f5f5f3; }
-.btn-danger { background: #ff3b30; color: #fff; }
-.btn-danger:hover { background: #d32f2f; }
 
 /* FORM WRAPPER (BOOKING) */
 .form-wrap { background: #fff; border: 0.5px solid #e0e0d8; border-radius: 16px; padding: 2rem; max-width: 540px; margin: 0 auto 3rem auto; }
@@ -122,6 +116,51 @@ tr:last-child td { border-bottom: none; }
       width: 100%;
     }
   }
+
+/* TIME PICKER ESTILO RELÓGIO */
+.time-picker-wrap { position: relative; }
+.time-display {
+  width: 100%; height: 42px; border-radius: 8px; border: 0.5px solid #c7c7cc;
+  padding: 0 12px; font-size: 0.95rem; background: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; user-select: none;
+}
+.time-display:hover { border-color: #1a1a2e; }
+.time-picker-dropdown {
+  display: none; position: absolute; top: 46px; left: 0; right: 0;
+  background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; padding: 12px;
+}
+.time-picker-dropdown.open { display: block; }
+.time-picker-cols { display: flex; align-items: center; justify-content: center; }
+.time-col { display: flex; flex-direction: column; align-items: center; }
+.time-col-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+.time-col-inner { height: 160px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+.time-col-inner::-webkit-scrollbar { display: none; }
+.time-opt {
+  height: 36px; width: 56px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 500; cursor: pointer; border-radius: 8px;
+  scroll-snap-align: center; color: #666; transition: all 0.1s;
+}
+.time-opt:hover { background: #f5f5f3; color: #1a1a1a; }
+.time-opt.selected { background: #1a1a2e; color: #fff; }
+.time-opt.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.time-sep { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; padding: 0 6px; margin-top: 20px; }
+.time-picker-confirm {
+  width: 100%; margin-top: 10px; padding: 8px; background: #1a1a2e; color: #fff;
+  border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 500;
+}
+.time-picker-confirm:hover { background: #2e2e4a; }
+/* SLOT CONTROL */
+.slot-ctrl { display: flex; align-items: center; gap: 6px; }
+.slot-ctrl-btn {
+  width: 26px; height: 26px; border: 0.5px solid #c7c7cc; border-radius: 6px;
+  background: #f5f5f3; cursor: pointer; font-size: 16px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.slot-ctrl-btn:hover { background: #e0e0d8; }
+.slot-ctrl-val { font-size: 0.95rem; font-weight: 600; min-width: 24px; text-align: center; }
+/* EXECUÇÃO */
+.badge-exec { background: #fff3cd; color: #856404; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -190,7 +229,27 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="form-group">
           <label>Horário Disponível *</label>
-          <select class="form-control" id="f-time"></select>
+          <div class="time-picker-wrap">
+            <div class="time-display" id="time-display" onclick="toggleTimePicker()">
+              <span id="time-display-text">Selecione o horário</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+            </div>
+            <div class="time-picker-dropdown" id="time-picker-dropdown">
+              <div class="time-picker-cols">
+                <div class="time-col">
+                  <div class="time-col-label">Hora</div>
+                  <div class="time-col-inner" id="tp-hours"></div>
+                </div>
+                <div class="time-sep">:</div>
+                <div class="time-col">
+                  <div class="time-col-label">Min</div>
+                  <div class="time-col-inner" id="tp-mins"></div>
+                </div>
+              </div>
+              <button class="time-picker-confirm" onclick="confirmTimePicker()">Confirmar horário</button>
+            </div>
+          </div>
+          <input type="hidden" id="f-time" />
         </div>
       </div>
       
@@ -234,9 +293,6 @@ tr:last-child td { border-bottom: none; }
       <button class="tab-btn" onclick="selectTab('funcionarios')">Funcionários</button> <button class="tab-btn" onclick="selectTab('config')">Configurações Oficina</button>
     </div>
 
-    ...
-
-    ...
 
     <div id="tab-funcionarios" class="tab-content">
       <div class="sec-title">
@@ -290,8 +346,8 @@ tr:last-child td { border-bottom: none; }
             <tr>
               <th>Nome do Serviço</th>
               <th>Preço</th>
-              <th>Vagas Padrão</th>
-              <th>Tipo de Veículo</th>
+              <th>Quantidade</th>
+              <th>Duração</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
@@ -388,17 +444,21 @@ tr:last-child td { border-bottom: none; }
         <input type="text" class="form-control" id="ms-price" placeholder="99,90" />
       </div>
       <div class="form-group" style="margin-bottom:0;">
-        <label>Vagas Diárias *</label>
+        <label>Quantidade *</label>
         <input type="number" class="form-control" id="ms-slots" value="4" min="1" />
       </div>
     </div>
-    <div class="form-group" style="margin-bottom:2rem;">
-      <label>Atende qual tipo de veículo?</label>
-      <select class="form-control" id="ms-vehicle">
-        <option value="all">Todos (Carros e Motos)</option>
-        <option value="car">Apenas Carros</option>
-        <option value="moto">Apenas Motos</option>
-      </select>
+    <div class="grid-config" style="gap:1rem; margin-bottom:2rem;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Duração do Serviço *</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="number" class="form-control" id="ms-duration-h" min="0" max="23" value="0" style="width:70px; text-align:center;" placeholder="0" />
+          <span style="font-size:0.85rem; color:#666;">h</span>
+          <input type="number" class="form-control" id="ms-duration-m" min="0" max="59" step="15" value="30" style="width:70px; text-align:center;" placeholder="30" />
+          <span style="font-size:0.85rem; color:#666;">min</span>
+        </div>
+        <small style="color:#888; font-size:0.8rem;">Tempo estimado de execução</small>
+      </div>
     </div>
     
     <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -441,12 +501,10 @@ tr:last-child td { border-bottom: none; }
 </div>
   
 <script>
-// 1. INICIALIZAÇÃO E CONFIGURAÇÃO DO BANCO DE DADOS
 const SUPABASE_URL = 'https://kwtflhlcoxvmvtspaozn.supabase.co'; 
 const SUPABASE_KEY = 'sb_publishable_PzzU8O3tpoAOaPI2WfJo2Q_JdWOpwUN'; 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ALL_TIMES = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
 var state = {
   loggedUser: null,
@@ -458,7 +516,6 @@ var state = {
   users: [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }]
 };
 
-// 2. FUNÇÕES AUXILIARES DE FORMATAÇÃO E MÁSCARAS
 function maskPhone(el) {
   let v = el.value.replace(/\D/g,'');
   if(v.length>11) v=v.slice(0,11);
@@ -480,7 +537,15 @@ function fmtDate(dStr) {
   return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-// 3. NAVEGAÇÃO ENTRE PÁGINAS
+function fmtPrice(raw) {
+  if (!raw) return '0,00';
+  // Remove tudo exceto dígitos e vírgula/ponto
+  let v = String(raw).replace(/[^\d.,]/g, '').replace(',', '.');
+  const n = parseFloat(v);
+  if (isNaN(n)) return String(raw);
+  return n.toFixed(2).replace('.', ',');
+}
+
 async function showPage(p) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   
@@ -514,7 +579,6 @@ function selectTab(t) {
   if(content) content.classList.add('active');
 }
 
-// 4. RENDERIZAÇÃO PÚBLICA (CLIENTE)
 function renderHome() {
   const s = state.settings;
   const h = state.hours;
@@ -564,22 +628,21 @@ function renderServiceCards() {
     const card = document.createElement('div');
     card.className = 'card-serv';
     
-    let badgeVeh = '';
-    if(s.vehicle==='car') badgeVeh='<span class="badge badge-car">Carro</span>';
-    if(s.vehicle==='moto') badgeVeh='<span class="badge badge-moto">Moto</span>';
-    
-    const slotsTxt = s.slots > 0 ? `${s.slots} vagas restantes` : 'Esgotado';
+    const slotsTxt = s.slots > 0 ? 'Disponível' : 'Esgotado';
     const disableBtn = s.slots > 0 ? '' : 'disabled style="opacity:0.5; cursor:not-allowed;"';
-    
+    const durH = parseInt(s.duration_h)||0;
+    const durM = parseInt(s.duration_m)||0;
+    const durStr = durH > 0 ? `${durH}h${durM>0?' '+durM+'min':''}` : `${durM}min`;
+
     card.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
         <h3 class="card-serv-title">${s.name}</h3>
-        ${badgeVeh}
+        <span style="font-size:0.75rem; color:#888; background:#f5f5f3; padding:3px 8px; border-radius:6px;">⏱ ${durStr}</span>
       </div>
       <p class="card-serv-desc">${s.desc || ''}</p>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; pt:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
         <div>
-          <div class="card-serv-price">R$ ${s.price}</div>
+          <div class="card-serv-price">R$ ${fmtPrice(s.price)}</div>
           <div class="card-serv-slots">${slotsTxt}</div>
         </div>
         <button class="btn btn-primary" ${disableBtn} onclick="openBooking(${state.services.indexOf(s)})">Agendar</button>
@@ -589,57 +652,189 @@ function renderServiceCards() {
   });
 }
 
-// 5. SISTEMA DE AGENDAMENTO (BOOKING)
+function getTodayPV() {
+  const now = new Date();
+  const pv = new Date(now.toLocaleString('en-US', { timeZone: 'America/Porto_Velho' }));
+  return pv.getFullYear() + '-' +
+    String(pv.getMonth()+1).padStart(2,'0') + '-' +
+    String(pv.getDate()).padStart(2,'0');
+}
+
+function getNowMinPV() {
+  const now = new Date();
+  const pv = new Date(now.toLocaleString('en-US', { timeZone: 'America/Porto_Velho' }));
+  return pv.getHours() * 60 + pv.getMinutes();
+}
+
 function openBooking(idx) {
   state.selectedService = idx;
   const s = state.services[idx];
   document.getElementById('b-title').textContent = s.name;
-  document.getElementById('b-desc').textContent = (s.desc||'') + ' — R$ ' + s.price;
-  
+  document.getElementById('b-desc').textContent = (s.desc||'') + ' — R$ ' + fmtPrice(s.price);
+
   document.getElementById('booking-form-wrap').style.display = 'block';
   document.getElementById('success-banner').classList.remove('show');
-  
+
+  const today = getTodayPV();
   const dateInput = document.getElementById('f-date');
-  const today = new Date().toISOString().split('T')[0];
   dateInput.value = today;
   dateInput.min = today;
-  
-  updateAvailableTimes();
+
+  document.getElementById('f-time').value = '';
+  document.getElementById('time-display-text').textContent = 'Selecione o horário';
+  document.getElementById('time-picker-dropdown').classList.remove('open');
+
+  buildTimePicker();
+  document.getElementById('booking-form-wrap').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-function updateAvailableTimes() {
-  const date = document.getElementById('f-date').value;
-  const select = document.getElementById('f-time');
-  if(!select) return;
-  select.innerHTML = '';
-  
-  if(!date) {
-    select.innerHTML = '<option value="">Selecione uma data primeiro</option>';
-    return;
-  }
-  
-  const taken = state.appointments
-    .filter(a => a.date === date && a.service_id === state.services[state.selectedService].id)
-    .map(a => a.time);
-    
-  let count = 0;
-  ALL_TIMES.forEach(t => {
-    if(state.hours.open && state.hours.close) {
-      if(t < state.hours.open || t > state.hours.close) return;
-    }
-    
-    const isTaken = taken.includes(t);
-    const opt = document.createElement('option');
-    opt.value = t;
-    opt.disabled = isTaken;
-    opt.textContent = t + (isTaken ? ' (Ocupado)' : '');
-    select.appendChild(opt);
-    count++;
+function toMin(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+
+function getBlockedTimes(date) {
+  const blocked = new Set();
+  const h = state.hours;
+  const openMin = h.open ? toMin(h.open) : 0;
+  const closeMin = h.close ? toMin(h.close) : 24*60;
+  const today = getTodayPV();
+  const nowMin = (date === today) ? getNowMinPV() + 30 : -1;
+
+  ALL_TIMES.forEach(slot => {
+    const slotMin = toMin(slot);
+
+    if (slotMin < openMin || slotMin >= closeMin) { blocked.add(slot); return; }
+
+    if (nowMin > 0 && slotMin <= nowMin) { blocked.add(slot); return; }
+
+    let running = 0;
+    state.appointments.filter(a => a.date === date).forEach(a => {
+      const aptStart = toMin(a.time);
+      const svc = state.services.find(s => s.id === a.service_id);
+      const durMin = svc ? ((parseInt(svc.duration_h)||0)*60 + (parseInt(svc.duration_m)||0)) : 60;
+      const aptEnd = aptStart + durMin;
+      if (slotMin >= aptStart && slotMin < aptEnd) running++;
+    });
+
+    if (running >= 2) blocked.add(slot);
   });
-  
-  if(count===0) {
-    select.innerHTML = '<option value="">Fora do horário de funcionamento</option>';
+
+  return blocked;
+}
+
+function buildTimePicker() {
+  const date = document.getElementById('f-date').value;
+  if (!date) return;
+
+  const blocked = getBlockedTimes(date);
+  const h = state.hours;
+  const openMin = h.open ? toMin(h.open) : 0;
+  const closeMin = h.close ? toMin(h.close) : 24*60;
+
+  const validHours = [];
+  for (let hh = 0; hh < 24; hh++) {
+    if (hh*60 >= openMin && hh*60 < closeMin) validHours.push(hh);
   }
+
+  const hoursCol = document.getElementById('tp-hours');
+  const minsCol = document.getElementById('tp-mins');
+  hoursCol.innerHTML = '';
+  minsCol.innerHTML = '';
+
+  const cur = document.getElementById('f-time').value;
+  const curH = cur ? parseInt(cur.split(':')[0]) : (validHours[0] ?? 8);
+  const curM = cur ? parseInt(cur.split(':')[1]) : 0;
+
+  validHours.forEach(hh => {
+    const el = document.createElement('div');
+    el.className = 'time-opt' + (hh === curH ? ' selected' : '');
+    el.textContent = String(hh).padStart(2,'0');
+    el.dataset.val = hh;
+    el.onclick = () => {
+      document.querySelectorAll('#tp-hours .time-opt').forEach(e=>e.classList.remove('selected'));
+      el.classList.add('selected');
+      refreshMinsCol(blocked, closeMin);
+    };
+    hoursCol.appendChild(el);
+  });
+
+  [0,15,30,45].forEach(mm => {
+    const el = document.createElement('div');
+    el.className = 'time-opt' + (mm === curM ? ' selected' : '');
+    el.textContent = String(mm).padStart(2,'0');
+    el.dataset.val = mm;
+      const slot = String(curH).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+    if (blocked.has(slot)) el.classList.add('disabled');
+    el.onclick = () => {
+      document.querySelectorAll('#tp-mins .time-opt:not(.disabled)').forEach(e=>e.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    minsCol.appendChild(el);
+  });
+
+  setTimeout(() => {
+    const sel = hoursCol.querySelector('.selected');
+    if (sel) sel.scrollIntoView({block:'center', behavior:'smooth'});
+  }, 50);
+}
+
+function refreshMinsCol(blocked, closeMin) {
+  const selH = document.querySelector('#tp-hours .selected');
+  if (!selH) return;
+  const hh = parseInt(selH.dataset.val);
+  const prevSelM = document.querySelector('#tp-mins .selected');
+  const prevM = prevSelM ? parseInt(prevSelM.dataset.val) : 0;
+  const minsCol = document.getElementById('tp-mins');
+  minsCol.innerHTML = '';
+  [0,15,30,45].forEach(mm => {
+    if (hh*60+mm >= closeMin) return;
+    const slot = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+    const el = document.createElement('div');
+    el.className = 'time-opt' + (mm === prevM ? ' selected' : '');
+    el.textContent = String(mm).padStart(2,'0');
+    el.dataset.val = mm;
+    if (blocked.has(slot)) el.classList.add('disabled');
+    el.onclick = () => {
+      document.querySelectorAll('#tp-mins .time-opt:not(.disabled)').forEach(e=>e.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    minsCol.appendChild(el);
+  });
+}
+
+function toggleTimePicker() {
+  const dd = document.getElementById('time-picker-dropdown');
+  const isOpen = dd.classList.contains('open');
+  if (!isOpen) { buildTimePicker(); }
+  dd.classList.toggle('open');
+}
+
+function confirmTimePicker() {
+  const selH = document.querySelector('#tp-hours .selected');
+  const selM = document.querySelector('#tp-mins .selected');
+  if (!selH || !selM) { alert('Selecione hora e minuto.'); return; }
+  const hh = String(selH.dataset.val).padStart(2,'0');
+  const mm = String(selM.dataset.val).padStart(2,'0');
+  const val = hh + ':' + mm;
+  document.getElementById('f-time').value = val;
+  document.getElementById('time-display-text').textContent = val;
+  document.getElementById('time-picker-dropdown').classList.remove('open');
+}
+
+// Fechar time picker ao clicar fora
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.time-picker-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('time-picker-dropdown').classList.remove('open');
+  }
+});
+
+function updateAvailableTimes() {
+  // Rebuild o time picker quando a data muda
+  const date = document.getElementById('f-date').value;
+  const today = getTodayPV();
+  if (date < today) { document.getElementById('f-date').value = today; return; }
+  document.getElementById('f-time').value = '';
+  document.getElementById('time-display-text').textContent = 'Selecione o horário';
+  buildTimePicker();
 }
 
 async function confirmBooking() {
@@ -649,9 +844,20 @@ async function confirmBooking() {
   const vehicle = document.getElementById('f-vehicle').value.trim();
   const date = document.getElementById('f-date').value;
   const time = document.getElementById('f-time').value;
-  
+
   if (!name||!phone||!date||!time||state.selectedService===null) { alert('Preencha todos os campos obrigatórios.'); return; }
-  
+
+  const today = getTodayPV();
+  if (date < today) { alert('Não é possível agendar para uma data passada.'); return; }
+
+  if (date === today) {
+    const nowMin = getNowMinPV();
+    if (toMin(time) <= nowMin + 30) { alert('Este horário já passou. Selecione um horário futuro.'); return; }
+  }
+
+  const blocked = getBlockedTimes(date);
+  if (blocked.has(time)) { alert('Este horário não está disponível. Escolha outro.'); return; }
+
   const si = state.selectedService;
   const sv = state.services[si];
   const novosSlots = Math.max(0, sv.slots - 1);
@@ -669,12 +875,13 @@ async function confirmBooking() {
   document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
   document.getElementById('success-banner').classList.add('show');
   document.getElementById('booking-form-wrap').style.display = 'none';
+  document.getElementById('f-time').value = '';
+  document.getElementById('time-display-text').textContent = 'Selecione o horário';
   ['f-name','f-phone','f-plate','f-vehicle'].forEach(id=>document.getElementById(id).value='');
   state.selectedService = null;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// 6. ÁREA ADMINISTRATIVA (AUTENTICAÇÃO E FUNÇÕES)
 function login() {
   const l = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value.trim();
@@ -695,7 +902,6 @@ function logout() {
   showPage('home');
 }
 
-// Função central do painel admin
 function renderAdmin() {
   document.getElementById('adm-user-name').textContent = state.loggedUser ? state.loggedUser.name : '';
   selectTab('agenda');
@@ -751,13 +957,46 @@ function renderAdminServices() {
   }
   
   state.services.forEach(s => {
+    const durH = parseInt(s.duration_h)||0;
+    const durM = parseInt(s.duration_m)||0;
+    const durStr = durH > 0 ? `${durH}h ${durM > 0 ? durM+'min' : ''}`.trim() : `${durM}min`;
+
+    const nowPV = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Porto_Velho' }));
+    const todayStr = nowPV.getFullYear() + '-' + String(nowPV.getMonth()+1).padStart(2,'0') + '-' + String(nowPV.getDate()).padStart(2,'0');
+    const nowMin = nowPV.getHours()*60 + nowPV.getMinutes();
+    const runningApt = state.appointments.find(a => {
+      if (a.service_id !== s.id || a.date !== todayStr) return false;
+      const start = toMin(a.time);
+      const totalDur = durH*60 + durM;
+      return nowMin >= start && nowMin < (start + totalDur);
+    });
+
+    let statusCell = '';
+    if (runningApt) {
+      // Calcular tempo restante
+      const start = toMin(runningApt.time);
+      const totalDur = durH*60 + durM;
+      const endMin = start + totalDur;
+      const restMin = Math.max(0, endMin - nowMin);
+      const rH = Math.floor(restMin/60), rM = restMin%60;
+      statusCell = `<span class="status-badge badge-exec">⚙️ Em execução — ${rH>0?rH+'h ':''}${rM}min restantes</span>`;
+    } else {
+      statusCell = `<span class="status-badge ${s.available?'status-confirmed':'status-pending'}">${s.available?'Ativo':'Inativo'}</span>`;
+    }
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${s.name}</strong></td>
-      <td>R$ ${s.price}</td>
-      <td>${s.slots}</td>
-      <td style="text-transform:capitalize;">${s.vehicle==='all'?'Todos':s.vehicle==='car'?'Carros':'Motos'}</td>
-      <td><span class="status-badge ${s.available?'status-confirmed':'status-pending'}">${s.available?'Ativo':'Inativo'}</span></td>
+      <td><strong>${s.name}</strong><br/><small style="color:#888;">${s.desc||''}</small></td>
+      <td>R$ ${fmtPrice(s.price)}</td>
+      <td>
+        <div class="slot-ctrl">
+          <button class="slot-ctrl-btn" onclick="changeSlots(${s.id}, -1)">−</button>
+          <span class="slot-ctrl-val" id="slots-${s.id}">${s.slots}</span>
+          <button class="slot-ctrl-btn" onclick="changeSlots(${s.id}, 1)">+</button>
+        </div>
+      </td>
+      <td>${durStr}</td>
+      <td>${statusCell}</td>
       <td>
         <button class="action-btn" onclick="toggleService(${s.id}, ${s.available})">${s.available?'Desativar':'Ativar'}</button>
         <button class="action-btn delete-btn" onclick="deleteService(${s.id})">Apagar</button>
@@ -775,7 +1014,6 @@ function renderAdminUsers() {
   state.users.forEach(u => {
     const tr = document.createElement('tr');
     
-    // Bloqueia a exclusão do administrador padrão master por segurança nas ações
     const isMasterAdmin = u.login === 'admin';
     const deleteBtn = isMasterAdmin ? '' : `<button class="action-btn delete-btn" onclick="deleteUser(${u.id})">Apagar</button>`;
     
@@ -851,34 +1089,47 @@ async function deleteService(id) {
   renderAdminServices();
 }
 
-// 7. GESTÃO DE MODAIS
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 async function addService() {
   const name = document.getElementById('ms-name').value.trim();
   const desc = document.getElementById('ms-desc').value.trim();
-  const price = document.getElementById('ms-price').value.trim();
+  const rawPrice = document.getElementById('ms-price').value.trim();
   const slots = parseInt(document.getElementById('ms-slots').value)||0;
-  const vehicle = document.getElementById('ms-vehicle').value;
-  
+  const duration_h = parseInt(document.getElementById('ms-duration-h').value)||0;
+  const duration_m = parseInt(document.getElementById('ms-duration-m').value)||0;
+  const price = fmtPrice(rawPrice);
+
   if (!name){alert('Informe o nome do serviço.');return;}
+  if (duration_h === 0 && duration_m === 0){alert('Informe a duração do serviço.');return;}
 
   const { error } = await _supabase.from('services').insert([{
-    name, desc, price: price || '—', slots, vehicle, available: true
+    name, desc, price, slots, duration_h, duration_m, available: true
   }]);
 
   if (error) return alert(error.message);
 
   closeModal('modal-service');
-  ['ms-name','ms-desc','ms-price','ms-slots'].forEach(id=>document.getElementById(id).value='');
-  
+  ['ms-name','ms-desc','ms-price','ms-slots','ms-duration-h','ms-duration-m'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ms-duration-m').value='30';
+
   await initApp();
   renderAdminServices();
   alert('Serviço adicionado com sucesso!');
 }
 
-// 8. CONFIGURAÇÕES DA OFICINA
+async function changeSlots(id, delta) {
+  const svc = state.services.find(s => s.id === id);
+  if (!svc) return;
+  const novosSlots = Math.max(0, svc.slots + delta);
+  const { error } = await _supabase.from('services').update({ slots: novosSlots }).eq('id', id);
+  if (error) return alert('Erro: ' + error.message);
+  svc.slots = novosSlots;
+  const el = document.getElementById('slots-' + id);
+  if (el) el.textContent = novosSlots;
+}
+
 function loadSettingsForm() {
   const s = state.settings;
   const h = state.hours;
@@ -934,7 +1185,6 @@ async function saveHours() {
   alert('Horários salvos com sucesso!');
 }
 
-// 9. INICIALIZAÇÃO ASSÍNCRONA DO APLICATIVO
 async function initApp() {
   try {
     // 1. Buscar Configurações
@@ -965,10 +1215,7 @@ async function initApp() {
     // 4. Buscar Agendamentos
     const { data: aptData } = await _supabase.from('appointments').select('*');
     if (aptData) {
-      state.appointments = aptData.map(a => ({
-        ...a,
-        serviceIdx: state.services.findIndex(s => s.id === a.service_id)
-      }));
+      state.appointments = aptData;
     }
 
    // 5. Buscar Usuários/Funcionários do Supabase
@@ -976,11 +1223,9 @@ async function initApp() {
     if (usersData && usersData.length > 0) {
       state.users = usersData;
     } else {
-      // Se a tabela estiver totalmente vazia, mantém o admin padrão para você não perder o acesso
-      state.users = [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }];
+        state.users = [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }];
     }
 
-    // Força a renderização visual na ordem certa
     renderHome();
     if (state.loggedUser) {
       renderAdmin();
@@ -990,7 +1235,6 @@ async function initApp() {
   }
 }
 
-// Executa o arranque inicial do app
 initApp();
 </script>
 </body>
