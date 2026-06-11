@@ -54,10 +54,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; c
 textarea.form-control { height: auto; padding: 10px; }
 
 /* SUCCESS BANNER */
-.banner-success { background: #e5f9f0; border: 0.5px solid #34c759; border-radius: 12px; padding: 1.5rem; text-align: center; max-width: 540px; margin: 0 auto 2rem auto; display: none; }
-.banner-success.show { display: block; }
-.banner-success h3 { color: #248a3d; font-size: 1.2rem; margin-bottom: 6px; }
-.banner-success p { color: #34495e; font-size: 0.95rem; }
+
 
 /* PAGES BLOCK */
 .page { display: none; }
@@ -117,6 +114,26 @@ tr:last-child td { border-bottom: none; }
     }
   }
 
+/* MODAL DE AGENDAMENTO */
+.booking-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.booking-modal-overlay.active { opacity: 1; pointer-events: auto; }
+.booking-modal-box {
+  background: #fff; border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 520px; max-height: 90vh;
+  overflow-y: auto; position: relative;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+}
+.booking-modal-close {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  background: none; border: none; font-size: 1.4rem;
+  cursor: pointer; color: #8e8e93; line-height: 1;
+}
+.booking-modal-close:hover { color: #1a1a1a; }
+
 /* TIME PICKER ESTILO RELÓGIO */
 .time-picker-wrap { position: relative; }
 .time-display {
@@ -126,9 +143,10 @@ tr:last-child td { border-bottom: none; }
 }
 .time-display:hover { border-color: #1a1a2e; }
 .time-picker-dropdown {
-  display: none; position: absolute; top: 46px; left: 0; right: 0;
+  display: none; position: fixed;
   background: #fff; border: 0.5px solid #e0e0d8; border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; padding: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 9999; padding: 12px;
+  width: 220px;
 }
 .time-picker-dropdown.open { display: block; }
 .time-picker-cols { display: flex; align-items: center; justify-content: center; }
@@ -194,70 +212,9 @@ tr:last-child td { border-bottom: none; }
     <div class="sec-title">Nossos Serviços</div>
     <div class="grid-serv" id="services-grid"></div>
 
-    <div class="banner-success" id="success-banner">
-      <h3>Agendamento Solicitado!</h3>
-      <p id="success-detail"></p>
-      <button class="btn btn-secondary" style="margin-top:12px; height:32px;" onclick="document.getElementById('success-banner').classList.remove('show')">Fechar</button>
-    </div>
 
-    <div class="form-wrap" id="booking-form-wrap" style="display:none; margin-top:2rem;">
-      <h2 style="font-size:1.4rem; font-weight:600; margin-bottom:4px;" id="b-title">Serviço</h2>
-      <p style="color:#666; font-size:0.95rem; margin-bottom:1.5rem;" id="b-desc"></p>
-      
-      <div class="form-group">
-        <label>Seu Nome *</label>
-        <input type="text" class="form-control" id="f-name" placeholder="Ex: João Silva" />
-      </div>
-      <div class="form-group">
-        <label>Telefone / WhatsApp *</label>
-        <input type="text" class="form-control" id="f-phone" oninput="maskPhone(this)" placeholder="(00) 00000-0000" />
-      </div>
-      <div class="grid-config" style="gap:1rem; margin-bottom:0;">
-        <div class="form-group">
-          <label>Modelo do Veículo</label>
-          <input type="text" class="form-control" id="f-vehicle" placeholder="Ex: Civic 2020" />
-        </div>
-        <div class="form-group">
-          <label>Placa</label>
-          <input type="text" class="form-control" id="f-plate" placeholder="AAA-0A00" style="text-transform:uppercase;" />
-        </div>
-      </div>
-      <div class="grid-config" style="gap:1rem; margin-bottom:1.5rem;">
-        <div class="form-group">
-          <label>Data Escolhida *</label>
-          <input type="date" class="form-control" id="f-date" onchange="updateAvailableTimes()" />
-        </div>
-        <div class="form-group">
-          <label>Horário Disponível *</label>
-          <div class="time-picker-wrap">
-            <div class="time-display" id="time-display" onclick="toggleTimePicker()">
-              <span id="time-display-text">Selecione o horário</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-            </div>
-            <div class="time-picker-dropdown" id="time-picker-dropdown">
-              <div class="time-picker-cols">
-                <div class="time-col">
-                  <div class="time-col-label">Hora</div>
-                  <div class="time-col-inner" id="tp-hours"></div>
-                </div>
-                <div class="time-sep">:</div>
-                <div class="time-col">
-                  <div class="time-col-label">Min</div>
-                  <div class="time-col-inner" id="tp-mins"></div>
-                </div>
-              </div>
-              <button class="time-picker-confirm" onclick="confirmTimePicker()">Confirmar horário</button>
-            </div>
-          </div>
-          <input type="hidden" id="f-time" />
-        </div>
-      </div>
-      
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="confirmBooking()">Confirmar Agendamento</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('booking-form-wrap').style.display='none'">Cancelar</button>
-      </div>
-    </div>
+
+
   </div>
 </div>
 
@@ -425,6 +382,56 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
+<!-- MODAL DE AGENDAMENTO -->
+<div class="booking-modal-overlay" id="booking-modal">
+  <div class="booking-modal-box">
+    <button class="booking-modal-close" onclick="closeBookingModal()">&times;</button>
+    <h2 style="font-size:1.4rem; font-weight:600; margin-bottom:4px;" id="b-title">Serviço</h2>
+    <p style="color:#666; font-size:0.95rem; margin-bottom:1.5rem;" id="b-desc"></p>
+
+    <div class="form-group">
+      <label>Seu Nome *</label>
+      <input type="text" class="form-control" id="f-name" placeholder="Ex: João Silva" />
+    </div>
+    <div class="form-group">
+      <label>Telefone / WhatsApp *</label>
+      <input type="text" class="form-control" id="f-phone" oninput="maskPhone(this)" placeholder="(00) 00000-0000" />
+    </div>
+    <div class="grid-config" style="gap:1rem; margin-bottom:0;">
+      <div class="form-group">
+        <label>Modelo da Moto</label>
+        <input type="text" class="form-control" id="f-vehicle" placeholder="Ex: Honda CG 160" />
+      </div>
+      <div class="form-group">
+        <label>Placa</label>
+        <input type="text" class="form-control" id="f-plate" placeholder="AAA-0A00" style="text-transform:uppercase;" />
+      </div>
+    </div>
+    <div class="grid-config" style="gap:1rem; margin-bottom:1.5rem;">
+      <div class="form-group">
+        <label>Data Escolhida *</label>
+        <input type="date" class="form-control" id="f-date" onchange="updateAvailableTimes()" />
+      </div>
+      <div class="form-group">
+        <label>Horário Disponível *</label>
+        <div class="time-picker-wrap">
+          <div class="time-display" id="time-display" onclick="toggleTimePicker(event)">
+            <span id="time-display-text">Selecione o horário</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+          </div>
+
+        </div>
+        <input type="hidden" id="f-time" />
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmBooking()">Confirmar Agendamento</button>
+      <button class="btn btn-secondary" onclick="closeBookingModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-service">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-service')">&times;</button>
@@ -504,12 +511,6 @@ tr:last-child td { border-bottom: none; }
 const SUPABASE_URL = 'https://kwtflhlcoxvmvtspaozn.supabase.co'; 
 const SUPABASE_KEY = 'sb_publishable_PzzU8O3tpoAOaPI2WfJo2Q_JdWOpwUN'; 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const ALL_TIMES = [];
-for (let h = 0; h < 24; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    ALL_TIMES.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'));
-  }
-}
 
 
 var state = {
@@ -678,8 +679,8 @@ function openBooking(idx) {
   document.getElementById('b-title').textContent = s.name;
   document.getElementById('b-desc').textContent = (s.desc||'') + ' — R$ ' + fmtPrice(s.price);
 
-  document.getElementById('booking-form-wrap').style.display = 'block';
-  document.getElementById('success-banner').classList.remove('show');
+  document.getElementById('booking-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
 
   const today = getTodayPV();
   const dateInput = document.getElementById('f-date');
@@ -691,10 +692,18 @@ function openBooking(idx) {
   document.getElementById('time-picker-dropdown').classList.remove('open');
 
   buildTimePicker();
-  document.getElementById('booking-form-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+
 }
 
 function toMin(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+
+// Todos os slots de 15 em 15 minutos durante 24h
+const ALL_TIMES = [];
+for (let h = 0; h < 24; h++) {
+  for (const m of [0, 15, 30, 45]) {
+    ALL_TIMES.push(String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'));
+  }
+}
 
 function getBlockedTimes(date) {
   const blocked = new Set();
@@ -715,14 +724,12 @@ function getBlockedTimes(date) {
     state.appointments.filter(a => a.date === date).forEach(a => {
       const aptStart = toMin(a.time);
       const svc = state.services.find(s => s.id === a.service_id);
-      
-      // >>> CORREÇÃO DA LEITURA DE HORAS E MINUTOS DA ATUALIZAÇÃO NOVO <<<
-      const durMin = svc ? ((parseInt(svc.duration_h) || 0) * 60 + (parseInt(svc.duration_m) || 0)) : 60;
+      const durMin = svc ? ((parseInt(svc.duration_h)||0)*60 + (parseInt(svc.duration_m)||0)) : 60;
       const aptEnd = aptStart + durMin;
       if (slotMin >= aptStart && slotMin < aptEnd) running++;
     });
 
-    if (running >= 2) blocked.add(slot); // Permite até 2 carros ao mesmo tempo por padrão
+    if (running >= 2) blocked.add(slot);
   });
 
   return blocked;
@@ -756,7 +763,8 @@ function buildTimePicker() {
     el.className = 'time-opt' + (hh === curH ? ' selected' : '');
     el.textContent = String(hh).padStart(2,'0');
     el.dataset.val = hh;
-    el.onclick = () => {
+    el.onclick = (ev) => {
+      ev.stopPropagation();
       document.querySelectorAll('#tp-hours .time-opt').forEach(e=>e.classList.remove('selected'));
       el.classList.add('selected');
       refreshMinsCol(blocked, closeMin);
@@ -771,7 +779,7 @@ function buildTimePicker() {
     el.dataset.val = mm;
       const slot = String(curH).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
     if (blocked.has(slot)) el.classList.add('disabled');
-    el.onclick = () => {
+    el.onclick = (ev) => { ev.stopPropagation();
       document.querySelectorAll('#tp-mins .time-opt:not(.disabled)').forEach(e=>e.classList.remove('selected'));
       el.classList.add('selected');
     };
@@ -800,7 +808,7 @@ function refreshMinsCol(blocked, closeMin) {
     el.textContent = String(mm).padStart(2,'0');
     el.dataset.val = mm;
     if (blocked.has(slot)) el.classList.add('disabled');
-    el.onclick = () => {
+    el.onclick = (ev) => { ev.stopPropagation();
       document.querySelectorAll('#tp-mins .time-opt:not(.disabled)').forEach(e=>e.classList.remove('selected'));
       el.classList.add('selected');
     };
@@ -808,14 +816,29 @@ function refreshMinsCol(blocked, closeMin) {
   });
 }
 
-function toggleTimePicker() {
+function toggleTimePicker(e) {
+  if (e) e.stopPropagation();
   const dd = document.getElementById('time-picker-dropdown');
+  const trigger = document.getElementById('time-display');
   const isOpen = dd.classList.contains('open');
-  if (!isOpen) { buildTimePicker(); }
+  if (!isOpen) {
+    buildTimePicker();
+    const rect = trigger.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const dropH = 260;
+    if (spaceBelow < dropH) {
+      dd.style.top = (rect.top - dropH - 4) + 'px';
+    } else {
+      dd.style.top = (rect.bottom + 4) + 'px';
+    }
+    dd.style.left = rect.left + 'px';
+    dd.style.width = rect.width + 'px';
+  }
   dd.classList.toggle('open');
 }
 
-function confirmTimePicker() {
+function confirmTimePicker(e) {
+  if (e) e.stopPropagation();
   const selH = document.querySelector('#tp-hours .selected');
   const selM = document.querySelector('#tp-mins .selected');
   if (!selH || !selM) { alert('Selecione hora e minuto.'); return; }
@@ -827,11 +850,28 @@ function confirmTimePicker() {
   document.getElementById('time-picker-dropdown').classList.remove('open');
 }
 
-// Fechar time picker ao clicar fora
+function closeBookingModal() {
+  document.getElementById('booking-modal').classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('f-time').value = '';
+  document.getElementById('time-display-text').textContent = 'Selecione o horário';
+  document.getElementById('time-picker-dropdown').classList.remove('open');
+  ['f-name','f-phone','f-plate','f-vehicle'].forEach(id => document.getElementById(id).value = '');
+  state.selectedService = null;
+}
+
 document.addEventListener('click', e => {
-  const wrap = document.querySelector('.time-picker-wrap');
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('time-picker-dropdown').classList.remove('open');
+  // Fechar modal de agendamento ao clicar no overlay
+  const modal = document.getElementById('booking-modal');
+  if (modal && e.target === modal) closeBookingModal();
+
+  // Fechar time picker ao clicar fora
+  const dd = document.getElementById('time-picker-dropdown');
+  if (!dd) return;
+  const clickedInsideWrap = e.target.closest('.time-picker-wrap');
+  const clickedInsideDropdown = dd.contains(e.target);
+  if (!clickedInsideWrap && !clickedInsideDropdown) {
+    dd.classList.remove('open');
   }
 });
 
@@ -881,13 +921,8 @@ async function confirmBooking() {
   await initApp();
 
   document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
-  document.getElementById('success-banner').classList.add('show');
-  document.getElementById('booking-form-wrap').style.display = 'none';
-  document.getElementById('f-time').value = '';
-  document.getElementById('time-display-text').textContent = 'Selecione o horário';
-  ['f-name','f-phone','f-plate','f-vehicle'].forEach(id=>document.getElementById(id).value='');
-  state.selectedService = null;
-  window.scrollTo({top:0,behavior:'smooth'});
+  closeBookingModal();
+  openModal('modal-success');
 }
 
 function login() {
@@ -1104,25 +1139,23 @@ async function addService() {
   const name = document.getElementById('ms-name').value.trim();
   const desc = document.getElementById('ms-desc').value.trim();
   const rawPrice = document.getElementById('ms-price').value.trim();
-  const slots = parseInt(document.getElementById('ms-slots').value) || 0;
-  
-  // Tratamento preventivo para garantir que envie um número válido para o banco
-  const duration_h = parseInt(document.getElementById('ms-duration-h').value) || 0;
-  const duration_m = parseInt(document.getElementById('ms-duration-m').value) || 0;
+  const slots = parseInt(document.getElementById('ms-slots').value)||0;
+  const duration_h = parseInt(document.getElementById('ms-duration-h').value)||0;
+  const duration_m = parseInt(document.getElementById('ms-duration-m').value)||0;
   const price = fmtPrice(rawPrice);
 
-  if (!name) { alert('Informe o nome do serviço.'); return; }
-  if (duration_h === 0 && duration_m === 0) { alert('Informe a duração do serviço.'); return; }
+  if (!name){alert('Informe o nome do serviço.');return;}
+  if (duration_h === 0 && duration_m === 0){alert('Informe a duração do serviço.');return;}
 
   const { error } = await _supabase.from('services').insert([{
     name, desc, price, slots, duration_h, duration_m, available: true
   }]);
 
-  if (error) return alert("Erro ao salvar no Supabase: " + error.message);
+  if (error) return alert(error.message);
 
   closeModal('modal-service');
-  ['ms-name', 'ms-desc', 'ms-price', 'ms-slots', 'ms-duration-h'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('ms-duration-m').value = '30';
+  ['ms-name','ms-desc','ms-price','ms-slots','ms-duration-h','ms-duration-m'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ms-duration-m').value='30';
 
   await initApp();
   renderAdminServices();
@@ -1218,8 +1251,6 @@ async function initApp() {
       state.services = servicesData.map(s => ({
         ...s,
         slots: parseInt(s.slots) || 0,
-        duration_h: parseInt(s.duration_h) || 0, // Garante que herde valor numérico estável
-        duration_m: parseInt(s.duration_m) || 0, // Garante que herde valor numérico estável
         available: s.available !== false
       }));
     }
@@ -1247,7 +1278,39 @@ async function initApp() {
   }
 }
 
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeBookingModal();
+});
+
 initApp();
 </script>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal-overlay" id="modal-success">
+  <div class="modal-box" style="max-width:420px; text-align:center;">
+    <div style="width:56px; height:56px; background:#e5f9f0; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-size:1.4rem; font-weight:700; color:#248a3d; margin-bottom:8px;">Agendamento Solicitado!</h2>
+    <p id="success-detail" style="color:#555; font-size:0.95rem; margin-bottom:1.5rem;"></p>
+    <button class="btn btn-primary" style="width:100%;" onclick="closeModal('modal-success')">Fechar</button>
+  </div>
+</div>
+<!-- TIME PICKER - fora de qualquer modal para position:fixed funcionar corretamente -->
+<div class="time-picker-dropdown" id="time-picker-dropdown" onclick="event.stopPropagation()">
+  <div class="time-picker-cols">
+    <div class="time-col">
+      <div class="time-col-label">Hora</div>
+      <div class="time-col-inner" id="tp-hours"></div>
+    </div>
+    <div class="time-sep">:</div>
+    <div class="time-col">
+      <div class="time-col-label">Min</div>
+      <div class="time-col-inner" id="tp-mins"></div>
+    </div>
+  </div>
+  <button class="time-picker-confirm" onclick="confirmTimePicker(event)">Confirmar horário</button>
+</div>
+
 </body>
 </html>
