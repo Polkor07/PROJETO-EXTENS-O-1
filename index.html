@@ -1538,8 +1538,12 @@ async function initApp() {
     }
 
     // 5. Buscar Horários Especiais
-    const { data: specialData } = await _supabase.from('special_hours').select('*').order('id');
-    if (specialData) state.specialHours = specialData;
+    const { data: specData } = await _supabase.from('special_hours').select('*');
+    if (specData) {
+      state.specialHours = specData; // Garante que o estado receba a lista do banco
+    } else {
+      state.specialHours = [];
+    }
 
    // 6. Buscar Usuários/Funcionários do Supabase
     const { data: usersData } = await _supabase.from('users').select('*');
