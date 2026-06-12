@@ -1289,16 +1289,16 @@ async function addService() {
   if (!name){alert('Informe o nome do serviço.');return;}
   if (duration_h === 0 && duration_m === 0){alert('Informe a duração do serviço.');return;}
 
-// Altere isso na sua função addService():
-const { error } = await _supabase.from('services').insert([{
-  nome: name,
-  desc: desc,
-  preco: parseFloat(price.replace(',', '.')), // Garante que vai como número para o tipo numeric
-  quantidade: slots,
-  duracao_horas: duration_h,
-  duracao_minutos: duration_m,
-  available: true
-}]);
+  // CORREÇÃO: Mapeado exatamente com as colunas em português do seu banco CSV
+  const { error } = await _supabase.from('services').insert([{
+    nome: name,
+    desc: desc,
+    preco: parseFloat(price.replace('.', '').replace(',', '.')), // Converte "R$ 150,00" para 150.00 numérico
+    quantidade: slots,
+    duracao_horas: duration_h,
+    duracao_minutos: duration_m,
+    available: true
+  }]);
 
   if (error) return alert(error.message);
 
