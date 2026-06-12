@@ -848,9 +848,9 @@ function getBlockedTimes(date) {
 
     // Conflito de capacidade (2+ serviços simultâneos)
     let running = 0;
-    state.appointments.filter(a => a.date === date).forEach(a => {
-      const aptStart = toMin(a.time);
-      const svc = state.services.find(s => s.id === a.service_id);
+    state.appointments.filter(a => a.data_agendamento === date).forEach(a => {
+    const aptStart = toMin(a.horario_agendamento.slice(0, 5)); // Corta os segundos se houver
+    const svc = state.services.find(s => s.id === a.servico_id);
       const durMin = svc ? ((parseInt(svc.duration_h)||0)*60 + (parseInt(svc.duration_m)||0)) : 60;
       if (slotMin >= aptStart && slotMin < aptStart + durMin) running++;
     });
@@ -1061,7 +1061,7 @@ async function confirmBooking() {
 
   await initApp();
 
-  document.getElementById('success-detail').textContent = sv.nome+' — '+fmtDate(date)+' às '+time+'.';
+  document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
   closeBookingModal();
   openModal('modal-success');
 }
@@ -1149,8 +1149,9 @@ function renderAdminServices() {
     const todayStr = nowPV.getFullYear() + '-' + String(nowPV.getMonth()+1).padStart(2,'0') + '-' + String(nowPV.getDate()).padStart(2,'0');
     const nowMin = nowPV.getHours()*60 + nowPV.getMinutes();
     const runningApt = state.appointments.find(a => {
-      if (a.service_id !== s.id || a.date !== todayStr) return false;
-      const start = toMin(a.time);
+    if (a.servico_id !== s.id || a.data_agendamento !== todayStr) 
+     return false;
+    const start = toMin(a.horario_agendamento.slice(0, 5));
       const totalDur = durH*60 + durM;
       return nowMin >= start && nowMin < (start + totalDur);
     });
@@ -1288,8 +1289,16 @@ async function addService() {
   if (!name){alert('Informe o nome do serviço.');return;}
   if (duration_h === 0 && duration_m === 0){alert('Informe a duração do serviço.');return;}
 
+  // CORRIGIDO: Mapeando para as colunas reais em português do banco
   const { error } = await _supabase.from('services').insert([{
-    name, desc, price, slots, duration_h, duration_m, available: true
+    nome: name,
+    desc: desc,
+    preco: parseFloat(rawPrice.replace('.', '').replace(',', '.')), // Garante formato numérico válido
+    quantidade: slots,
+    duracao_horas: duration_h,
+    duracao_minutos: duration_m,
+    available: true,
+    status: 'Ativo'
   }]);
 
   if (error) return alert(error.message);
@@ -1307,7 +1316,7 @@ async function changeSlots(id, delta) {
   const svc = state.services.find(s => s.id === id);
   if (!svc) return;
   const novosSlots = Math.max(0, svc.slots + delta);
-  const { error } = await _supabase.from('services').update({ slots: novosSlots }).eq('id', id);
+  const { error } = await _supabase.from('services').update({ quantidade: novosSlots }).eq('id', id);
   if (error) return alert('Erro: ' + error.message);
   svc.slots = novosSlots;
   const el = document.getElementById('slots-' + id);
@@ -1461,12 +1470,17 @@ async function initApp() {
       };
     }
 
-    // 3. Buscar Serviços
-    const { data: servicesData } = await _supabase.from('services').select('*').order('name');
+    // 3. Buscar Serviços (CORRIGIDO)
+    const { data: servicesData } = await _supabase.from('services').select('*').order('nome');
     if (servicesData) {
       state.services = servicesData.map(s => ({
-        ...s,
-        slots: parseInt(s.slots) || 0,
+        id: s.id,
+        name: s.nome,          // Converte 'nome' do banco para 'name' do front
+        desc: s.desc,
+        price: s.preco,        // Converte 'preco' do banco para 'price' do front
+        slots: parseInt(s.quantidade) || 0, // Converte 'quantidade' para 'slots'
+        duration_h: parseInt(s.duracao_horas) || 0,
+        duration_m: parseInt(s.duracao_minutos) || 0,
         available: s.available !== false
       }));
     }
