@@ -1043,24 +1043,25 @@ async function confirmBooking() {
   const sv = state.services[si];
   const novosSlots = Math.max(0, sv.slots - 1);
 
-  await _supabase.from('services').update({ slots: novosSlots }).eq('id', sv.id);
+  await _supabase.from('services').update({ quantidade: novosSlots }).eq('id', sv.id);
 
-  // CORREÇÃO DA INSERÇÃO PARA BATER COM SEU BANCO DE DADOS:
-const { error } = await _supabase.from('appointments').insert([{
-  cliente_nome: name,
-  cliente_telefone: phone,
-  veiculo_placa: plate,
-  veiculo_modelo: vehicle,
-  data_agendamento: date,
-  horario_agendamento: time,
-  servico_id: sv.id
-}]);
+  // CORREÇÃO: Mapeado com as colunas reais em português do seu banco de dados
+  const { error } = await _supabase.from('appointments').insert([{
+    cliente_nome: name,
+    cliente_telefone: phone,
+    veiculo_placa: plate,
+    veiculo_modelo: vehicle,
+    data_agendamento: date,
+    horario_agendamento: time,
+    servico_id: sv.id,
+    status: 'Confirmado'
+  }]);
 
   if (error) { alert('Erro ao agendar: ' + error.message); return; }
 
   await initApp();
 
-  document.getElementById('success-detail').textContent = sv.name+' — '+fmtDate(date)+' às '+time+'.';
+  document.getElementById('success-detail').textContent = sv.nome+' — '+fmtDate(date)+' às '+time+'.';
   closeBookingModal();
   openModal('modal-success');
 }
@@ -1386,9 +1387,10 @@ async function saveHours() {
   const days = ['d0','d1','d2','d3','d4','d5','d6']
     .filter(id => document.getElementById(id) && document.getElementById(id).checked)
     .map(id => document.getElementById(id).value);
+    
   const pause_active = document.getElementById('set-pause-active').checked;
-  const pause_start  = pause_active ? document.getElementById('set-pause-start').value : '';
-  const pause_end    = pause_active ? document.getElementById('set-pause-end').value   : '';
+  const pause_start  = pause_active ? document.getElementById('set-pause-start').value : null;
+  const pause_end    = pause_active ? document.getElementById('set-pause-end').value   : null;
   const pause_days   = pause_active
     ? ['p1-d0','p1-d1','p1-d2','p1-d3','p1-d4','p1-d5','p1-d6']
         .filter(id => document.getElementById(id)?.checked)
@@ -1396,8 +1398,8 @@ async function saveHours() {
     : [];
 
   const pause2_active = document.getElementById('set-pause2-active').checked;
-  const pause2_start  = pause2_active ? document.getElementById('set-pause2-start').value : '';
-  const pause2_end    = pause2_active ? document.getElementById('set-pause2-end').value   : '';
+  const pause2_start  = pause2_active ? document.getElementById('set-pause2-start').value : null;
+  const pause2_end    = pause2_active ? document.getElementById('set-pause2-end').value   : null;
   const pause2_days   = pause2_active
     ? ['p2-d0','p2-d1','p2-d2','p2-d3','p2-d4','p2-d5','p2-d6']
         .filter(id => document.getElementById(id)?.checked)
@@ -1409,10 +1411,23 @@ async function saveHours() {
   if (pause2_active && (!pause2_start || !pause2_end)) { alert('Informe o início e fim da Pausa 2.'); return; }
   if (pause2_active && toMin(pause2_end) <= toMin(pause2_start)) { alert('Fim da Pausa 2 deve ser depois do início.'); return; }
 
+  // CORREÇÃO: Enviando 'open' e 'close' que são os nomes reais das colunas no seu banco CSV
+  // E usando "hours" entre aspas para garantir o mapeamento do relacionamento
   const { error } = await _supabase.from('hours').update({
-    open_time, close_time, complement, days,
-    pause_active, pause_start, pause_end, pause_days,
-    pause2_active, pause2_start, pause2_end, pause2_days
+    open: open_time ? open_time : null, 
+    close: close_time ? close_time : null, 
+    open_time: open_time ? open_time : null,
+    close_time: close_time ? close_time : null,
+    complement, 
+    days,
+    pause_active, 
+    pause_start: pause_start ? pause_start : null, 
+    pause_end: pause_end ? pause_end : null, 
+    pause_days,
+    pause2_active, 
+    pause2_start: pause2_start ? pause2_start : null, 
+    pause2_end: pause2_end ? pause2_end : null, 
+    pause2_days
   }).eq('id', 1);
 
   if (error) return alert('Erro ao salvar horários: ' + error.message);
