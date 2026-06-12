@@ -1099,27 +1099,27 @@ function renderAdminAppointments() {
   const tbody = document.querySelector('#table-agenda tbody');
   if(!tbody) return;
   tbody.innerHTML = '';
-  
   if(state.appointments.length===0) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Nenhum agendamento registrado.</td></tr>';
     return;
   }
   
-  const sorted = [...state.appointments].sort((a,b) => (a.date+a.time) > (b.date+b.time) ? 1 : -1);
-  
+  // Ordena usando a coluna correta do banco de dados (data_agendamento e horario_agendamento)
+  const sorted = [...state.appointments].sort((a,b) => (a.data_agendamento+a.horario_agendamento) > (b.data_agendamento+b.horario_agendamento) ? 1 : -1);
   sorted.forEach(a => {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td><strong>${a.cliente_nome}</strong><br/><small style="color:#666">${a.cliente_telefone}</small></td>
-    <td>${a.veiculo_modelo || '—'}<br/><small style="color:#666;text-transform:uppercase;">${a.veiculo_placa||'—'}</small></td>
-    <td><span class="tag-table-serv">Serviço ID: ${a.servico_id}</span></td>
-    <td>${fmtDate(a.data_agendamento)}</td>
-    <td><strong>${a.horario_agendamento}</strong></td>
-    <td><span class="status-badge status-confirmed">Confirmado</span></td>
-    <td><button class="action-btn delete-btn" onclick="deleteAppointment(${a.id})">Apagar</button></td>
-  `;
-  tbody.appendChild(tr);
-});
+    const tr = document.createElement('tr');
+    // CORREÇÃO: Alterado a.name para a.cliente_nome, a.vehicle para a.veiculo_modelo, etc.
+    tr.innerHTML = `
+      <td><strong>${a.cliente_nome || '—'}</strong><br/><small style="color:#666">${a.cliente_telefone || ''}</small></td>
+      <td>${a.veiculo_modelo || '—'}<br/><small style="color:#666;text-transform:uppercase;">${a.veiculo_placa||'—'}</small></td>
+      <td><span class="tag-table-serv">Serviço ID: ${a.servico_id || '—'}</span></td>
+      <td>${fmtDate(a.data_agendamento)}</td>
+      <td><strong>${a.horario_agendamento}</strong></td>
+      <td><span class="status-badge status-confirmed">Confirmado</span></td>
+      <td><button class="action-btn delete-btn" onclick="deleteAppointment(${a.id})">Apagar</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
 async function deleteAppointment(id) {
