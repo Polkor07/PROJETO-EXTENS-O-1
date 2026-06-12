@@ -406,20 +406,65 @@ tr:last-child td { border-bottom: none; }
             <div class="checkbox-item"><input type="checkbox" id="d6" value="Sáb" /><label for="d6">Sáb</label></div>
           </div>
         </div>
-        <div class="form-group" style="margin-top:1.25rem; margin-bottom:0;">
-          <label style="display:flex; align-items:center; gap:10px;">
-            <input type="checkbox" id="set-pause-active" onchange="togglePauseFields()" />
-            Horário de Pausa (ex: almoço)
+        <!-- PAUSA 1 -->
+        <div class="form-group" style="margin-top:1.25rem; padding:1rem; background:#fafafa; border:0.5px solid #e0e0d8; border-radius:10px;">
+          <label style="display:flex; align-items:center; gap:10px; font-weight:600; margin-bottom:10px;">
+            <input type="checkbox" id="set-pause-active" onchange="togglePauseFields(1)" />
+            Horário de Pausa 1
           </label>
-          <div id="pause-fields" style="display:none; margin-top:10px;">
-            <div class="grid-config" style="grid-template-columns:1fr 1fr; gap:1rem;">
+          <div id="pause-fields-1" style="display:none;">
+            <div class="grid-config" style="grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:10px;">
               <div class="form-group" style="margin-bottom:0;">
-                <label>Início da Pausa</label>
+                <label>Início</label>
                 <input type="time" class="form-control" id="set-pause-start" />
               </div>
               <div class="form-group" style="margin-bottom:0;">
-                <label>Fim da Pausa</label>
+                <label>Fim</label>
                 <input type="time" class="form-control" id="set-pause-end" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Dias em que esta pausa se aplica</label>
+              <div class="checkbox-group" style="margin-top:6px;">
+                <div class="checkbox-item"><input type="checkbox" id="p1-d0" value="Dom"/><label for="p1-d0">Dom</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d1" value="Seg"/><label for="p1-d1">Seg</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d2" value="Ter"/><label for="p1-d2">Ter</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d3" value="Qua"/><label for="p1-d3">Qua</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d4" value="Qui"/><label for="p1-d4">Qui</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d5" value="Sex"/><label for="p1-d5">Sex</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p1-d6" value="Sáb"/><label for="p1-d6">Sáb</label></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAUSA 2 -->
+        <div class="form-group" style="margin-top:0.75rem; padding:1rem; background:#fafafa; border:0.5px solid #e0e0d8; border-radius:10px; margin-bottom:0;">
+          <label style="display:flex; align-items:center; gap:10px; font-weight:600; margin-bottom:10px;">
+            <input type="checkbox" id="set-pause2-active" onchange="togglePauseFields(2)" />
+            Horário de Pausa 2
+          </label>
+          <div id="pause-fields-2" style="display:none;">
+            <div class="grid-config" style="grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:10px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Início</label>
+                <input type="time" class="form-control" id="set-pause2-start" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Fim</label>
+                <input type="time" class="form-control" id="set-pause2-end" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label>Dias em que esta pausa se aplica</label>
+              <div class="checkbox-group" style="margin-top:6px;">
+                <div class="checkbox-item"><input type="checkbox" id="p2-d0" value="Dom"/><label for="p2-d0">Dom</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d1" value="Seg"/><label for="p2-d1">Seg</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d2" value="Ter"/><label for="p2-d2">Ter</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d3" value="Qua"/><label for="p2-d3">Qua</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d4" value="Qui"/><label for="p2-d4">Qui</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d5" value="Sex"/><label for="p2-d5">Sex</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="p2-d6" value="Sáb"/><label for="p2-d6">Sáb</label></div>
               </div>
             </div>
           </div>
@@ -576,7 +621,11 @@ var state = {
   loggedUser: null,
   selectedService: null,
   settings: { name:'', phone:'', rua:'', numero:'', bairro:'', desc:'' },
-  hours: { open:'', close:'', days:[], complement:'', pause_active: false, pause_start:'', pause_end:'' },
+  hours: {
+    open:'', close:'', days:[], complement:'',
+    pause_active: false, pause_start:'', pause_end:'', pause_days:[],
+    pause2_active: false, pause2_start:'', pause2_end:'', pause2_days:[]
+  },
   specialHours: [],
   services: [],
   appointments: [],
@@ -837,10 +886,18 @@ function getBlockedTimes(date) {
   const today = getTodayPV();
   const nowMin = (date === today) ? getNowMinPV() + 30 : -1;
 
-  // Pausa: só aplica se não for horário especial e se pause_active estiver ligado
-  const pauseActive = !special && state.hours.pause_active;
-  const pauseStart = pauseActive && state.hours.pause_start ? toMin(state.hours.pause_start) : -1;
-  const pauseEnd   = pauseActive && state.hours.pause_end   ? toMin(state.hours.pause_end)   : -1;
+  // Pausas: verificar se o dia da data está nos dias de cada pausa
+  const dayName = getDayName(date);
+
+  const pause1Active = !special && state.hours.pause_active &&
+    (!state.hours.pause_days || !state.hours.pause_days.length || state.hours.pause_days.includes(dayName));
+  const pause1Start = pause1Active && state.hours.pause_start ? toMin(state.hours.pause_start) : -1;
+  const pause1End   = pause1Active && state.hours.pause_end   ? toMin(state.hours.pause_end)   : -1;
+
+  const pause2Active = !special && state.hours.pause2_active &&
+    (!state.hours.pause2_days || !state.hours.pause2_days.length || state.hours.pause2_days.includes(dayName));
+  const pause2Start = pause2Active && state.hours.pause2_start ? toMin(state.hours.pause2_start) : -1;
+  const pause2End   = pause2Active && state.hours.pause2_end   ? toMin(state.hours.pause2_end)   : -1;
 
   ALL_TIMES.forEach(slot => {
     const slotMin = toMin(slot);
@@ -851,8 +908,11 @@ function getBlockedTimes(date) {
     // Já passou (hoje)
     if (nowMin > 0 && slotMin <= nowMin) { blocked.add(slot); return; }
 
-    // Dentro da pausa
-    if (pauseActive && pauseStart >= 0 && slotMin >= pauseStart && slotMin < pauseEnd) { blocked.add(slot); return; }
+    // Dentro da Pausa 1
+    if (pause1Active && pause1Start >= 0 && slotMin >= pause1Start && slotMin < pause1End) { blocked.add(slot); return; }
+
+    // Dentro da Pausa 2
+    if (pause2Active && pause2Start >= 0 && slotMin >= pause2Start && slotMin < pause2End) { blocked.add(slot); return; }
 
     // Conflito de capacidade (2+ serviços simultâneos)
     let running = 0;
@@ -1336,9 +1396,24 @@ function loadSettingsForm() {
   const pauseChk = document.getElementById('set-pause-active');
   if (pauseChk) {
     pauseChk.checked = h.pause_active || false;
-    document.getElementById('pause-fields').style.display = h.pause_active ? 'block' : 'none';
+    document.getElementById('pause-fields-1').style.display = h.pause_active ? 'block' : 'none';
     document.getElementById('set-pause-start').value = h.pause_start || '';
     document.getElementById('set-pause-end').value   = h.pause_end   || '';
+    ['p1-d0','p1-d1','p1-d2','p1-d3','p1-d4','p1-d5','p1-d6'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = h.pause_days && h.pause_days.includes(el.value);
+    });
+  }
+  const pause2Chk = document.getElementById('set-pause2-active');
+  if (pause2Chk) {
+    pause2Chk.checked = h.pause2_active || false;
+    document.getElementById('pause-fields-2').style.display = h.pause2_active ? 'block' : 'none';
+    document.getElementById('set-pause2-start').value = h.pause2_start || '';
+    document.getElementById('set-pause2-end').value   = h.pause2_end   || '';
+    ['p2-d0','p2-d1','p2-d2','p2-d3','p2-d4','p2-d5','p2-d6'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = h.pause2_days && h.pause2_days.includes(el.value);
+    });
   }
   renderSpecialHoursList();
 }
@@ -1468,9 +1543,11 @@ async function saveSettings() {
   alert('Informações guardadas com sucesso!');
 }
 
-function togglePauseFields() {
-  const active = document.getElementById('set-pause-active').checked;
-  document.getElementById('pause-fields').style.display = active ? 'block' : 'none';
+function togglePauseFields(n) {
+  const id = n === 2 ? 'set-pause2-active' : 'set-pause-active';
+  const fieldId = n === 2 ? 'pause-fields-2' : 'pause-fields-1';
+  const active = document.getElementById(id).checked;
+  document.getElementById(fieldId).style.display = active ? 'block' : 'none';
 }
 
 async function saveHours() {
@@ -1481,18 +1558,32 @@ async function saveHours() {
     .filter(id => document.getElementById(id) && document.getElementById(id).checked)
     .map(id => document.getElementById(id).value);
   const pause_active = document.getElementById('set-pause-active').checked;
-  const pause_start = pause_active ? document.getElementById('set-pause-start').value : '';
-  const pause_end   = pause_active ? document.getElementById('set-pause-end').value   : '';
+  const pause_start  = pause_active ? document.getElementById('set-pause-start').value : '';
+  const pause_end    = pause_active ? document.getElementById('set-pause-end').value   : '';
+  const pause_days   = pause_active
+    ? ['p1-d0','p1-d1','p1-d2','p1-d3','p1-d4','p1-d5','p1-d6']
+        .filter(id => document.getElementById(id)?.checked)
+        .map(id => document.getElementById(id).value)
+    : [];
 
-  if (pause_active && (!pause_start || !pause_end)) {
-    alert('Informe o início e fim da pausa.'); return;
-  }
-  if (pause_active && toMin(pause_end) <= toMin(pause_start)) {
-    alert('O fim da pausa deve ser depois do início.'); return;
-  }
+  const pause2_active = document.getElementById('set-pause2-active').checked;
+  const pause2_start  = pause2_active ? document.getElementById('set-pause2-start').value : '';
+  const pause2_end    = pause2_active ? document.getElementById('set-pause2-end').value   : '';
+  const pause2_days   = pause2_active
+    ? ['p2-d0','p2-d1','p2-d2','p2-d3','p2-d4','p2-d5','p2-d6']
+        .filter(id => document.getElementById(id)?.checked)
+        .map(id => document.getElementById(id).value)
+    : [];
+
+  if (pause_active && (!pause_start || !pause_end)) { alert('Informe o início e fim da Pausa 1.'); return; }
+  if (pause_active && toMin(pause_end) <= toMin(pause_start)) { alert('Fim da Pausa 1 deve ser depois do início.'); return; }
+  if (pause2_active && (!pause2_start || !pause2_end)) { alert('Informe o início e fim da Pausa 2.'); return; }
+  if (pause2_active && toMin(pause2_end) <= toMin(pause2_start)) { alert('Fim da Pausa 2 deve ser depois do início.'); return; }
 
   const { error } = await _supabase.from('hours').update({
-    open_time, close_time, complement, days, pause_active, pause_start, pause_end
+    open_time, close_time, complement, days,
+    pause_active, pause_start, pause_end, pause_days,
+    pause2_active, pause2_start, pause2_end, pause2_days
   }).eq('id', 1);
 
   if (error) return alert('Erro ao salvar horários: ' + error.message);
@@ -1515,9 +1606,14 @@ async function initApp() {
         close: hoursData.close_time,
         days: hoursData.days || [],
         complement: hoursData.complement,
-        pause_active: hoursData.pause_active || false,
-        pause_start: hoursData.pause_start || '',
-        pause_end: hoursData.pause_end || ''
+        pause_active:  hoursData.pause_active  || false,
+        pause_start:   hoursData.pause_start   || '',
+        pause_end:     hoursData.pause_end     || '',
+        pause_days:    hoursData.pause_days    || [],
+        pause2_active: hoursData.pause2_active || false,
+        pause2_start:  hoursData.pause2_start  || '',
+        pause2_end:    hoursData.pause2_end    || '',
+        pause2_days:   hoursData.pause2_days   || []
       };
     }
 
@@ -1538,12 +1634,8 @@ async function initApp() {
     }
 
     // 5. Buscar Horários Especiais
-    const { data: specData } = await _supabase.from('special_hours').select('*');
-    if (specData) {
-      state.specialHours = specData; // Garante que o estado receba a lista do banco
-    } else {
-      state.specialHours = [];
-    }
+    const { data: specialData } = await _supabase.from('special_hours').select('*').order('id');
+    if (specialData) state.specialHours = specialData;
 
    // 6. Buscar Usuários/Funcionários do Supabase
     const { data: usersData } = await _supabase.from('users').select('*');
