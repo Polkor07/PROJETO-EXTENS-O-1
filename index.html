@@ -406,26 +406,6 @@ tr:last-child td { border-bottom: none; }
             <div class="checkbox-item"><input type="checkbox" id="d6" value="Sáb" /><label for="d6">Sáb</label></div>
           </div>
         </div>
-
-          <div class="form-group">
-  <label>Dias da Semana aplicáveis</label>
-  <div class="week-days-grid">
-    <label class="day-check"><input type="checkbox" id="sh-d0" value="0"><span>Dom</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d1" value="1"><span>Seg</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d2" value="2"><span>Ter</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d3" value="3"><span>Qua</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d4" value="4"><span>Qui</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d5" value="5"><span>Sex</span></label>
-    <label class="day-check"><input type="checkbox" id="sh-d6" value="6"><span>Sáb</span></label>
-  </div>
-</div>
-
-<div class="form-group" style="margin-top: 12px;">
-  <label for="sh-date">Data Específica (Obrigatório)</label>
-  <input type="date" id="sh-date" class="form-control" style="width: 100%; padding: 8px; border: 0.5px solid #e0e0d8; border-radius: 6px;" />
-</div>
-<div class="form-row" style="margin-top:12px;">
-    
         <div class="form-group" style="margin-top:1.25rem; margin-bottom:0;">
           <label style="display:flex; align-items:center; gap:10px;">
             <input type="checkbox" id="set-pause-active" onchange="togglePauseFields()" />
@@ -1413,49 +1393,29 @@ async function saveSpecialHour() {
   const open_time = document.getElementById('sh-open').value;
   const close_time = document.getElementById('sh-close').value;
   const description = document.getElementById('sh-desc').value.trim();
-  
-  // 1. Nova linha: Recolhe o valor do input de data que adicionámos no HTML
-  const date = document.getElementById('sh-date').value; 
 
-  // Validações
-  if (!days.length) { alert('Selecione pelo menos um dia.'); return; }
-  if (!open_time || !close_time) { alert('Informe a abertura e o fecho.'); return; }
-  
-  // 2. Nova validação: Impede o envio se a data estiver vazia, evitando o erro do Supabase
-  if (!date) { 
-    alert('Por favor, selecione a data específica para este horário especial.'); 
-    return; 
-  }
+  if (!days.length) { alert('Selecione ao menos um dia.'); return; }
+  if (!open_time || !close_time) { alert('Informe abertura e fechamento.'); return; }
 
   let error;
   if (editId) {
-    // 3. Atualizado: Inclui a propriedade 'date' no objeto de UPDATE
-    ({ error } = await _supabase.from('special_hours')
-      .update({ days, open_time, close_time, description, date })
-      .eq('id', editId));
+    ({ error } = await _supabase.from('special_hours').update({ days, open_time, close_time, description }).eq('id', editId));
   } else {
-    // 4. Atualizado: Inclui a propriedade 'date' no objeto de INSERT
-    ({ error } = await _supabase.from('special_hours')
-      .insert([{ days, open_time, close_time, description, date, active: true }]));
+    ({ error } = await _supabase.from('special_hours').insert([{ days, open_time, close_time, description, active: true }]));
   }
 
-  if (error) { 
-    alert('Erro ao guardar no Supabase: ' + error.message); 
-    return; 
-  }
-  
-  // Limpeza dos campos após o sucesso
+  if (error) { alert('Erro: ' + error.message); return; }
+
   closeModal('modal-special-hour');
   document.getElementById('sh-edit-id').value = '';
-  document.getElementById('sh-open').value = '';
-  document.getElementById('sh-close').value = '';
-  document.getElementById('sh-desc').value = '';
-  ['sh-d0','sh-d1','sh-d2','sh-d3','sh-d4','sh-d5','sh-d6'].forEach(id => {
-    if(document.getElementById(id)) document.getElementById(id).checked = false;
-  });
-  
-  await initApp();
-  if(typeof renderSpecialHours === 'function') renderSpecialHours();
+  ['sh-d0','sh-d1','sh-d2','sh-d3','sh-d4','sh-d5','sh-d6'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
+  ['sh-open','sh-close','sh-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+
+  const { data } = await _supabase.from('special_hours').select('*').order('id');
+  if (data) state.specialHours = data;
+  renderSpecialHoursList();
+  renderHome();
+  alert('Horário especial salvo!');
 }
 
 function editSpecialHour(id) {
