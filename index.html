@@ -179,35 +179,8 @@ tr:last-child td { border-bottom: none; }
 .slot-ctrl-val { font-size: 0.95rem; font-weight: 600; min-width: 24px; text-align: center; }
 /* EXECUÇÃO */
 .badge-exec { background: #fff3cd; color: #856404; }
-/* HORÁRIOS ESPECIAIS */
-.special-hours-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
-.special-hour-item {
-  background: #fafafa; border: 0.5px solid #e0e0d8; border-radius: 10px;
-  padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-}
-.special-hour-item.inactive { opacity: 0.55; }
-.sh-toggle { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
-.sh-toggle input { opacity: 0; width: 0; height: 0; }
-.sh-slider {
-  position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: .2s;
-}
-.sh-slider:before {
-  content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
-  background: #fff; border-radius: 50%; transition: .2s;
-}
-.sh-toggle input:checked + .sh-slider { background: #1a1a2e; }
-.sh-toggle input:checked + .sh-slider:before { transform: translateX(16px); }
-.sh-info { flex: 1; min-width: 160px; }
-.sh-days { font-size: 0.9rem; font-weight: 600; color: #1a1a1a; }
-.sh-time { font-size: 0.82rem; color: #666; margin-top: 2px; }
-.sh-label { font-size: 0.78rem; color: #888; font-style: italic; margin-top: 1px; }
-.sh-actions { display: flex; gap: 8px; }
-.sh-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #fff3cd; color: #856404; border: 0.5px solid #ffc107;
-  border-radius: 20px; padding: 3px 10px; font-size: 0.8rem; font-weight: 500;
-}
-.sh-badge.active-badge { background: #e5f9f0; color: #248a3d; border-color: #34c759; }
+
+
 
 </style>
 
@@ -472,16 +445,7 @@ tr:last-child td { border-bottom: none; }
         <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="saveHours()">Salvar Horários de Trabalho</button>
       </div>
 
-      <div class="sec-title" style="margin-top:2rem;">Horários Especiais por Dia</div>
-      <div class="form-wrap" style="max-width:100%; margin:0 0 2rem 0; padding:1.5rem;">
-        <p style="font-size:0.9rem; color:#666; margin-bottom:1.25rem;">
-          Configure horários diferentes para dias específicos (ex: Sábado com horário reduzido, feriados, eventos). Quando ativo, o horário especial substitui o horário padrão para aquele dia.
-        </p>
-        <div class="special-hours-list" id="special-hours-list">
-          <p style="color:#aaa; font-size:0.9rem;" id="sh-empty">Nenhum horário especial cadastrado.</p>
-        </div>
-        <button class="btn btn-secondary" style="width:100%;" onclick="openModal('modal-special-hour')">+ Adicionar Horário Especial</button>
-      </div>
+      
     </div>
   </div>
 </div>
@@ -626,7 +590,6 @@ var state = {
     pause_active: false, pause_start:'', pause_end:'', pause_days:[],
     pause2_active: false, pause2_start:'', pause2_end:'', pause2_days:[]
   },
-  specialHours: [],
   services: [],
   appointments: [],
   users: [{ name:'Administrador', login:'admin', pass:'admin123', role:'admin' }]
@@ -698,7 +661,6 @@ function selectTab(t) {
 function renderHome() {
   const s = state.settings;
   const h = state.hours;
-  const activeSpecials = state.specialHours.filter(sh => sh.active);
   
   document.querySelectorAll('.dyn-name').forEach(el => el.textContent = s.name || 'Oficina');
   
@@ -723,28 +685,6 @@ function renderHome() {
     } else {
       hoursEl.textContent = 'Funcionamento: Não definido';
     }
-  }
-
-  // Exibir chips de horários especiais ativos abaixo do info-row
-  const existingSpecial = document.getElementById('info-row-special');
-  if (existingSpecial) existingSpecial.remove();
-  if (activeSpecials.length) {
-    const row = document.createElement('div');
-    row.id = 'info-row-special';
-    row.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:8px;';
-    activeSpecials.forEach(sh => {
-      const days = (sh.days && sh.days.length) ? sh.days.join(', ') : '';
-      const openF = sh.open_time ? sh.open_time.slice(0,5).replace(':','h') : '';
-      const closeF = sh.close_time ? sh.close_time.slice(0,5).replace(':','h') : '';
-      const label = sh.description || (days + ': ' + openF + ' às ' + closeF);
-      const chip = document.createElement('div');
-      chip.className = 'info-item';
-      chip.innerHTML = '⭐ ' + label;
-      chip.style.cssText = 'font-size:0.82rem; background:#fff3cd; border-color:#ffc107; color:#856404;';
-      row.appendChild(chip);
-    });
-    const infoRow = document.querySelector('.info-row');
-    if (infoRow) infoRow.insertAdjacentElement('afterend', row);
   }
 
   const descEl = document.getElementById('info-desc');
@@ -848,13 +788,6 @@ for (let h = 0; h < 24; h++) {
   }
 }
 
-function getSpecialHourForDate(date) {
-  if (!date || !state.specialHours.length) return null;
-  const dow = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Porto_Velho' });
-  const dowMap = { 'dom.':'Dom','seg.':'Seg','ter.':'Ter','qua.':'Qua','qui.':'Qui','sex.':'Sex','sáb.':'Sáb' };
-  const dayName = dowMap[dow.toLowerCase()] ?? '';
-  return state.specialHours.find(sh => sh.active && sh.days && sh.days.includes(dayName)) || null;
-}
 
 function getDayName(date) {
   // Retorna ex: 'Seg', 'Sáb', 'Dom' para uma data ISO
@@ -864,8 +797,6 @@ function getDayName(date) {
 }
 
 function isDayOpen(date) {
-  const special = getSpecialHourForDate(date);
-  if (special) return true; // dia com horário especial = aberto
   const dayName = getDayName(date);
   return state.hours.days && state.hours.days.includes(dayName);
 }
@@ -873,28 +804,29 @@ function isDayOpen(date) {
 function getBlockedTimes(date) {
   const blocked = new Set();
 
-  // Se o dia não está na lista de dias abertos (e não tem horário especial), bloquear tudo
+  // Se o dia não está na lista de dias abertos, bloquear tudo
   if (!isDayOpen(date)) {
     ALL_TIMES.forEach(slot => blocked.add(slot));
     return blocked;
   }
 
-  const special = getSpecialHourForDate(date);
-  const h = special ? { open: special.open_time, close: special.close_time } : state.hours;
-  const openMin = h.open ? toMin(h.open) : 0;
-  const closeMin = h.close ? toMin(h.close) : 24*60;
+  // CORREÇÃO: Buscando diretamente do state.hours (colunas da tabela 'hours' do Supabase)
+  const openMin = state.hours.open ? toMin(state.hours.open) : 0;
+  const closeMin = state.hours.close ? toMin(state.hours.close) : 24*60;
   const today = getTodayPV();
   const nowMin = (date === today) ? getNowMinPV() + 30 : -1;
 
   // Pausas: verificar se o dia da data está nos dias de cada pausa
   const dayName = getDayName(date);
 
-  const pause1Active = !special && state.hours.pause_active &&
+  // CORREÇÃO: Removido o "!special &&"
+  const pause1Active = state.hours.pause_active &&
     (!state.hours.pause_days || !state.hours.pause_days.length || state.hours.pause_days.includes(dayName));
   const pause1Start = pause1Active && state.hours.pause_start ? toMin(state.hours.pause_start) : -1;
   const pause1End   = pause1Active && state.hours.pause_end   ? toMin(state.hours.pause_end)   : -1;
 
-  const pause2Active = !special && state.hours.pause2_active &&
+  // CORREÇÃO: Removido o "!special &&"
+  const pause2Active = state.hours.pause2_active &&
     (!state.hours.pause2_days || !state.hours.pause2_days.length || state.hours.pause2_days.includes(dayName));
   const pause2Start = pause2Active && state.hours.pause2_start ? toMin(state.hours.pause2_start) : -1;
   const pause2End   = pause2Active && state.hours.pause2_end   ? toMin(state.hours.pause2_end)   : -1;
@@ -934,12 +866,10 @@ function buildTimePicker() {
   if (!date) return;
 
   const blocked = getBlockedTimes(date);
-  const special = getSpecialHourForDate(date);
-  const h = special ? { open: special.open_time, close: special.close_time } : state.hours;
-  const openMin = h.open ? toMin(h.open) : 0;
-  const closeMin = h.close ? toMin(h.close) : 24*60;
-
+  const openMin = state.hours.open ? toMin(state.hours.open) : 0;
+  const closeMin = state.hours.close ? toMin(state.hours.close) : 24*60;
   const validHours = [];
+    
   for (let hh = 0; hh < 24; hh++) {
     if (hh*60 >= openMin && hh*60 < closeMin) validHours.push(hh);
   }
@@ -1115,9 +1045,16 @@ async function confirmBooking() {
 
   await _supabase.from('services').update({ slots: novosSlots }).eq('id', sv.id);
 
-  const { error } = await _supabase.from('appointments').insert([{
-    name, phone, plate, vehicle, date, time, service: sv.name, service_id: sv.id
-  }]);
+  // CORREÇÃO DA INSERÇÃO PARA BATER COM SEU BANCO DE DADOS:
+const { error } = await _supabase.from('appointments').insert([{
+  cliente_nome: name,
+  cliente_telefone: phone,
+  veiculo_placa: plate,
+  veiculo_modelo: vehicle,
+  data_agendamento: date,
+  horario_agendamento: time,
+  servico_id: sv.id
+}]);
 
   if (error) { alert('Erro ao agendar: ' + error.message); return; }
 
@@ -1170,18 +1107,18 @@ function renderAdminAppointments() {
   const sorted = [...state.appointments].sort((a,b) => (a.date+a.time) > (b.date+b.time) ? 1 : -1);
   
   sorted.forEach(a => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${a.name}</strong><br/><small style="color:#666">${a.phone}</small></td>
-      <td>${a.vehicle || '—'}<br/><small style="color:#666;text-transform:uppercase;">${a.plate||'—'}</small></td>
-      <td><span class="tag-table-serv">${a.service}</span></td>
-      <td>${fmtDate(a.date)}</td>
-      <td><strong>${a.time}</strong></td>
-      <td><span class="status-badge status-confirmed">Confirmado</span></td>
-      <td><button class="action-btn delete-btn" onclick="deleteAppointment(${a.id})">Apagar</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>${a.cliente_nome}</strong><br/><small style="color:#666">${a.cliente_telefone}</small></td>
+    <td>${a.veiculo_modelo || '—'}<br/><small style="color:#666;text-transform:uppercase;">${a.veiculo_placa||'—'}</small></td>
+    <td><span class="tag-table-serv">Serviço ID: ${a.servico_id}</span></td>
+    <td>${fmtDate(a.data_agendamento)}</td>
+    <td><strong>${a.horario_agendamento}</strong></td>
+    <td><span class="status-badge status-confirmed">Confirmado</span></td>
+    <td><button class="action-btn delete-btn" onclick="deleteAppointment(${a.id})">Apagar</button></td>
+  `;
+  tbody.appendChild(tr);
+});
 }
 
 async function deleteAppointment(id) {
@@ -1415,114 +1352,6 @@ function loadSettingsForm() {
       if (el) el.checked = h.pause2_days && h.pause2_days.includes(el.value);
     });
   }
-  renderSpecialHoursList();
-}
-
-function renderSpecialHoursList() {
-  const list = document.getElementById('special-hours-list');
-  const empty = document.getElementById('sh-empty');
-  if (!list) return;
-
-  // Remover itens antigos mas manter o parágrafo vazio
-  list.querySelectorAll('.special-hour-item').forEach(el => el.remove());
-
-  if (!state.specialHours.length) {
-    if (empty) empty.style.display = 'block';
-    return;
-  }
-  if (empty) empty.style.display = 'none';
-
-  state.specialHours.forEach(sh => {
-    const days = (sh.days && sh.days.length) ? sh.days.join(', ') : '—';
-    const openF = sh.open_time ? sh.open_time.slice(0,5).replace(':','h') : '—';
-    const closeF = sh.close_time ? sh.close_time.slice(0,5).replace(':','h') : '—';
-    const desc = sh.description || '';
-
-    const item = document.createElement('div');
-    item.className = 'special-hour-item' + (sh.active ? '' : ' inactive');
-    item.innerHTML = `
-      <label class="sh-toggle">
-        <input type="checkbox" ${sh.active ? 'checked' : ''} onchange="toggleSpecialHour(${sh.id}, this.checked)" />
-        <span class="sh-slider"></span>
-      </label>
-      <div class="sh-info">
-        <div class="sh-days">${days}</div>
-        <div class="sh-time">${openF} às ${closeF}</div>
-        ${desc ? `<div class="sh-label">"${desc}"</div>` : ''}
-      </div>
-      <span class="sh-badge ${sh.active ? 'active-badge' : ''}">${sh.active ? 'Ativo' : 'Inativo'}</span>
-      <div class="sh-actions">
-        <button class="action-btn" onclick="editSpecialHour(${sh.id})">Editar</button>
-        <button class="action-btn delete-btn" onclick="deleteSpecialHour(${sh.id})">Apagar</button>
-      </div>
-    `;
-    list.appendChild(item);
-  });
-}
-
-async function saveSpecialHour() {
-  const editId = document.getElementById('sh-edit-id').value;
-  const days = ['sh-d0','sh-d1','sh-d2','sh-d3','sh-d4','sh-d5','sh-d6']
-    .filter(id => document.getElementById(id) && document.getElementById(id).checked)
-    .map(id => document.getElementById(id).value);
-  const open_time = document.getElementById('sh-open').value;
-  const close_time = document.getElementById('sh-close').value;
-  const description = document.getElementById('sh-desc').value.trim();
-
-  if (!days.length) { alert('Selecione ao menos um dia.'); return; }
-  if (!open_time || !close_time) { alert('Informe abertura e fechamento.'); return; }
-
-  let error;
-  if (editId) {
-    ({ error } = await _supabase.from('special_hours').update({ days, open_time, close_time, description }).eq('id', editId));
-  } else {
-    ({ error } = await _supabase.from('special_hours').insert([{ days, open_time, close_time, description, active: true }]));
-  }
-
-  if (error) { alert('Erro: ' + error.message); return; }
-
-  closeModal('modal-special-hour');
-  document.getElementById('sh-edit-id').value = '';
-  ['sh-d0','sh-d1','sh-d2','sh-d3','sh-d4','sh-d5','sh-d6'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
-  ['sh-open','sh-close','sh-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-
-  const { data } = await _supabase.from('special_hours').select('*').order('id');
-  if (data) state.specialHours = data;
-  renderSpecialHoursList();
-  renderHome();
-  alert('Horário especial salvo!');
-}
-
-function editSpecialHour(id) {
-  const sh = state.specialHours.find(x => x.id === id);
-  if (!sh) return;
-  document.getElementById('sh-edit-id').value = id;
-  ['sh-d0','sh-d1','sh-d2','sh-d3','sh-d4','sh-d5','sh-d6'].forEach(el => {
-    const inp = document.getElementById(el);
-    if(inp) inp.checked = sh.days && sh.days.includes(inp.value);
-  });
-  document.getElementById('sh-open').value = sh.open_time || '';
-  document.getElementById('sh-close').value = sh.close_time || '';
-  document.getElementById('sh-desc').value = sh.description || '';
-  openModal('modal-special-hour');
-}
-
-async function toggleSpecialHour(id, active) {
-  const { error } = await _supabase.from('special_hours').update({ active }).eq('id', id);
-  if (error) { alert('Erro: ' + error.message); return; }
-  const sh = state.specialHours.find(x => x.id === id);
-  if (sh) sh.active = active;
-  renderSpecialHoursList();
-  renderHome();
-}
-
-async function deleteSpecialHour(id) {
-  if (!confirm('Apagar este horário especial?')) return;
-  const { error } = await _supabase.from('special_hours').delete().eq('id', id);
-  if (error) { alert('Erro: ' + error.message); return; }
-  state.specialHours = state.specialHours.filter(x => x.id !== id);
-  renderSpecialHoursList();
-  renderHome();
 }
 
 async function saveSettings() {
@@ -1633,10 +1462,6 @@ async function initApp() {
       state.appointments = aptData;
     }
 
-    // 5. Buscar Horários Especiais
-    const { data: specialData } = await _supabase.from('special_hours').select('*').order('id');
-    if (specialData) state.specialHours = specialData;
-
    // 6. Buscar Usuários/Funcionários do Supabase
     const { data: usersData } = await _supabase.from('users').select('*');
     if (usersData && usersData.length > 0) {
@@ -1660,49 +1485,6 @@ document.addEventListener('keydown', e => {
 
 initApp();
 </script>
-
-<!-- MODAL HORÁRIO ESPECIAL -->
-<div class="modal-overlay" id="modal-special-hour">
-  <div class="modal-box" style="max-width:500px;">
-    <button class="modal-close" onclick="closeModal('modal-special-hour')">&times;</button>
-    <h2 style="font-size:1.3rem; font-weight:600; margin-bottom:1.5rem;">Horário Especial</h2>
-    <input type="hidden" id="sh-edit-id" value="" />
-
-    <div class="form-group">
-      <label>Dias da Semana *</label>
-      <div class="checkbox-group">
-        <div class="checkbox-item"><input type="checkbox" id="sh-d0" value="Dom" /><label for="sh-d0">Dom</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d1" value="Seg" /><label for="sh-d1">Seg</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d2" value="Ter" /><label for="sh-d2">Ter</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d3" value="Qua" /><label for="sh-d3">Qua</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d4" value="Qui" /><label for="sh-d4">Qui</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d5" value="Sex" /><label for="sh-d5">Sex</label></div>
-        <div class="checkbox-item"><input type="checkbox" id="sh-d6" value="Sáb" /><label for="sh-d6">Sáb</label></div>
-      </div>
-    </div>
-
-    <div class="grid-config" style="gap:1rem;">
-      <div class="form-group">
-        <label>Abertura *</label>
-        <input type="time" class="form-control" id="sh-open" />
-      </div>
-      <div class="form-group">
-        <label>Fechamento *</label>
-        <input type="time" class="form-control" id="sh-close" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Descrição (visível ao cliente)</label>
-      <input type="text" class="form-control" id="sh-desc" placeholder="Ex: Sábados: 08h às 13h" />
-    </div>
-
-    <div style="display:flex; gap:10px; margin-top:0.5rem;">
-      <button class="btn btn-primary" style="flex:1;" onclick="saveSpecialHour()">Salvar</button>
-      <button class="btn btn-secondary" onclick="closeModal('modal-special-hour')">Cancelar</button>
-    </div>
-  </div>
-</div>
 
 <!-- MODAL CONFIRMAÇÃO -->
 <div class="modal-overlay" id="modal-success">
